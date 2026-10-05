@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A J | Personal Portfolio</title>
+  <style>
+    :root {
+      --bg: #fafafa;
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #666666;
+      --accent: #2563eb;
+      --border: #e5e5e5;
+      --tag-en: #dbeafe;
+      --tag-en-text: #1e40af;
+      --tag-so: #dcfce7;
+      --tag-so-text: #166534;
+      --tag-mix: #f3e8ff;
+      --tag-mix-text: #6b21a8;
+      --btn-bg: #f3f4f6;
+      --btn-hover: #e5e7eb;
+    }
+
+    body.dark-mode {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --tag-en: rgba(219, 234, 254, 0.15);
+      --tag-en-text: #93c5fd;
+      --tag-so: rgba(220, 252, 231, 0.15);
+      --tag-so-text: #86efac;
+      --tag-mix: rgba(243, 232, 255, 0.15);
+      --tag-mix-text: #d8b4fe;
+      --btn-bg: #334155;
+      --btn-hover: #475569;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .container { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
+
+    header { margin-bottom: 60px; border-bottom: 1px solid var(--border); padding-bottom: 30px; }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .controls { display: flex; gap: 12px; }
+
+    .toggle-btn {
+      background: var(--btn-bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+    }
+
+    .toggle-btn:hover {
+      background: var(--btn-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .avatar {
+      width: 84px;
+      height: 84px;
+      border-radius: 20px;
+      object-fit: cover;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      border: 1px solid var(--border);
+    }
+
+    h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.02em; }
+
+    .tagline { font-size: 1.25rem; color: var(--muted); margin-bottom: 24px; font-weight: 500; }
+
+    .bio { font-size: 1.1rem; line-height: 1.7; color: var(--text); opacity: 0.9; }
+
+    h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+
+    .posts-grid { display: flex; flex-direction: column; gap: 24px; }
+
+    .post-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.3s ease;
+    }
+
+    .post-card:hover { box-shadow: 0 10px 25px rgba(0,0,0,0.1); transform: translateY(-2px); }
+
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .post-date { font-size: 0.9rem; color: var(--muted); font-weight: 500; }
+
+    .tag {
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tag.en { background: var(--tag-en); color: var(--tag-en-text); }
+    .tag.so { background: var(--tag-so); color: var(--tag-so-text); }
+    .tag.mix { background: var(--tag-mix); color: var(--tag-mix-text); }
+
+    .post-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; line-height: 1.3; color: var(--text); }
+
+    .post-summary { color: var(--muted); font-size: 1.05rem; margin-bottom: 16px; }
+
+    .post-full-text {
+      display: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--border);
+      color: var(--text);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      opacity: 0.9;
+    }
+
+    .read-more-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .read-more-btn:hover { text-decoration: underline; }
+
+    .contact-section {
+      margin-top: 60px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      transition: background 0.3s ease;
+    }
+
+    .contact-section h2 { justify-content: center; margin-bottom: 12px; }
+
+    .contact-text { color: var(--muted); font-size: 1.05rem; margin-bottom: 24px; }
+
+    .contact-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #ffffff;
+      padding: 12px 28px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .contact-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35); }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 30px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    footer .domain { display: block; margin-top: 6px; font-weight: 600; color: var(--accent); }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2rem; }
+      .tagline { font-size: 1.1rem; }
+      .post-card { padding: 20px; }
+      .toggle-btn { padding: 6px 12px; font-size: 0.8rem; }
+      .header-top { flex-direction: column; align-items: flex-start; }
+      .controls { width: 100%; justify-content: flex-start; }
+      .contact-section { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="header-top">
+        <img src="logo.png" alt="A J logo" class="avatar">
+        <div class="controls">
+          <button id="themeToggle" class="toggle-btn">🌙 Dark Mode</button>
+          <button id="langToggle" class="toggle-btn">🇸🇴 Soomaali</button>
+        </div>
+      </div>
+      <h1>A J</h1>
+      <p class="tagline" id="siteTagline">Thinker, Builder, and Observer.</p>
+      <p class="bio" id="siteBio">Welcome to my personal space. I use this portfolio to document my journey, share my ideas, and write about the things I am learning. I write in English, Somali, and sometimes a mix of both, depending on what feels right for the story.</p>
+    </header>
+
+    <section>
+      <h2 id="siteHeading">📝 Latest Thoughts & Articles</h2>
+      <div id="posts-container" class="posts-grid"></div>
+    </section>
+
+    <section class="contact-section">
+      <h2 id="contactHeading">📬 Get in Touch</h2>
+      <p id="contactText" class="contact-text">Want to chat, collaborate, or share an idea? The fastest way to reach me is on X.</p>
+      <a id="contactLink" class="contact-btn" href="https://x.com/halyay" target="_blank" rel="noopener noreferrer">Message me on X →</a>
+    </section>
+
+    <footer id="siteFooter"></footer>
+  </div>
+
+  <script>
+    const translations = {
+      en: {
+        tagline: "Thinker, Builder, and Observer.",
+        bio: "Welcome to my personal space. I use this portfolio to document my journey, share my ideas, and write about the things I am learning. I write in English, Somali, and sometimes a mix of both, depending on what feels right for the story.",
+        heading: "📝 Latest Thoughts & Articles",
+        readMore: "Read More →",
+        showLess: "Show Less ↑",
+        footer: '&copy; 2026 A J. Built with passion and curiosity.<span class="domain">www.48du1k4d1r.com</span>',
+        contactHeading: "📬 Get in Touch",
+        contactText: "Want to chat, collaborate, or share an idea? The fastest way to reach me is on X.",
+        contactBtn: "Message me on X →",
+        langBtn: "🇸🇴 Soomaali",
+        darkBtn: "🌙 Dark Mode",
+        lightBtn: "☀️ Light Mode"
+      },
+      so: {
+        tagline: "Fakare, Abuure, iyo Daawade.",
+        bio: "Soo dhawoow bogayga gaarka ah. Waxaan boggaan u isticmaalaa inaan ku xuso safarkayga, ku wadaago fikradahayga, oo aan ku qoro waxyaabaha aan baranayo. Waxaan ku qoraa Ingiriisi, Soomaali, iyo mararka qaar isku-dhaf labadaba ah, iyadoo ku xiran hadba waxa ii la qumman.",
+        heading: "📝 Fikradihii & Maqaaladii Ugu Dambeeyay",
+        readMore: "Akhri Qoraalka Oo Dhan →",
+        showLess: "Soo Gaabi ↑",
+        footer: '&copy; 2026 A J. Waxaa lagu dhisay xamaasad iyo xiiso.<span class="domain">www.48du1k4d1r.com</span>',
+        contactHeading: "📬 Nala Soo Xiriir",
+        contactText: "Ma doonaysaa inaan sheekaysano, wada shaqayno, ama fikrad wadaagno? Waddada ugu dhaqsaha badan ee aad iigu soo gaari karto waa X.",
+        contactBtn: "Iigu soo dir X →",
+        langBtn: "🇬🇧 English",
+        darkBtn: "🌙 Hab Madow",
+        lightBtn: "☀️ Hab Cad"
+      }
+    };
+
+    let currentLang = "en";
+    let isDarkMode = localStorage.getItem("theme") === "dark";
+
+    const posts = [
+      {
+        title: "Safarkayga Barashada Teknolojiyadda (My Tech Journey)",
+        date: "Oktoobar 5, 2026",
+        tag: "mix",
+        summary: "Maanta waxaan bilaabayaa bog cusub. Today I am starting a new page to share my mind and my journey into building things on the web.",
+        fullText: "Halkan waxaan ku wadaagi doonaa fikradahayga. Here I will share my thoughts on technology, society, and life. Building this website from scratch using just basic code has been my first step. It feels great to have my own corner of the internet that I fully control. I will be updating this whenever inspiration strikes."
+      },
+      {
+        title: "The Power of Consistent Learning",
+        date: "Oktoobar 4, 2026",
+        tag: "en",
+        summary: "Learning a little bit every day compounds over time. You don't need to be an expert on day one.",
+        fullText: "When you commit to reading or building something small every single day, the results after a year are massive. This portfolio is proof of that. I didn't know how to build this a few days ago, but by taking it one step at a time, I now have a live website. The same rule applies to learning languages, coding, or building a business. Just don't stop."
+      },
+      {
+        title: "Muhiimadda ay leedahay in la qoro fikirkaaga",
+        date: "Oktoobar 3, 2026",
+        tag: "so",
+        summary: "Qoraalka waa hab fiican oo aad maskaxdaada ku nadiifin karto, fikradahaagana aad dadka kale ula wadaagi karto.",
+        fullText: "Markaad wax qorto, waxaad fursad u helaysaa inaad si qoto dheer uga fikirto waxa aad aaminsan tahay. Blog-gaan wuxuu ii noqon doonaa meel aan ku kaydiyo taariikhda fikirradayda. Sannado ka dib, waan soo laaban doonaa oo aan akhrin doonaa qoraalladaan, waana ku farxi doonaa inaan waqti geliyay."
+      }
+    ];
+
+    const container = document.getElementById("posts-container");
+    const langToggleBtn = document.getElementById("langToggle");
+    const themeToggleBtn = document.getElementById("themeToggle");
+
+    function renderPosts() {
+      container.innerHTML = "";
+
+      posts.forEach(function(post) {
+        const card = document.createElement("article");
+        card.className = "post-card";
+
+        const tagLabel = post.tag === "en" ? "English" : post.tag === "so" ? "Soomaali" : "Mixed";
+
+        card.innerHTML = `
+          <div class="post-header">
+            <span class="post-date">${post.date}</span>
+            <span class="tag ${post.tag}">${tagLabel}</span>
+          </div>
+          <h3 class="post-title">${post.title}</h3>
+          <p class="post-summary">${post.summary}</p>
+          <button class="read-more-btn">${translations[currentLang].readMore}</button>
+          <div class="post-full-text">${post.fullText}</div>
+        `;
+
+        container.appendChild(card);
+
+        const btn = card.querySelector(".read-more-btn");
+        const fullText = card.querySelector(".post-full-text");
+
+        btn.addEventListener("click", function() {
+          if (fullText.style.display === "none" || fullText.style.display === "") {
+            fullText.style.display = "block";
+            btn.textContent = translations[currentLang].showLess;
+          } else {
+            fullText.style.display = "none";
+            btn.textContent = translations[currentLang].readMore;
+          }
+        });
+      });
+    }
+
+    function applyTheme(dark) {
+      isDarkMode = dark;
+      if (dark) {
+        document.body.classList.add("dark-mode");
+        themeToggleBtn.textContent = translations[currentLang].lightBtn;
+        localStorage.setItem("theme", "dark");
+      } else {
+        document.body.classList.remove("dark-mode");
+        themeToggleBtn.textContent = translations[currentLang].darkBtn;
+        localStorage.setItem("theme", "light");
+      }
+    }
+
+    function applyTranslations(lang) {
+      currentLang = lang;
+
+      document.getElementById('siteTagline').textContent = translations[lang].tagline;
+      document.getElementById('siteBio').textContent = translations[lang].bio;
+      document.getElementById('siteHeading').textContent = translations[lang].heading;
+      document.getElementById('siteFooter').innerHTML = translations[lang].footer;
+      document.getElementById('contactHeading').textContent = translations[lang].contactHeading;
+      document.getElementById('contactText').textContent = translations[lang].contactText;
+      document.getElementById('contactLink').textContent = translations[lang].contactBtn;
+      langToggleBtn.textContent = translations[lang].langBtn;
+      themeToggleBtn.textContent = isDarkMode ? translations[lang].lightBtn : translations[lang].darkBtn;
+
+      renderPosts();
+    }
+
+    langToggleBtn.addEventListener("click", function() {
+      const newLang = currentLang === "en" ? "so" : "en";
+      applyTranslations(newLang);
+    });
+
+    themeToggleBtn.addEventListener("click", function() {
+      applyTheme(!isDarkMode);
+    });
+
+    applyTheme(isDarkMode);
+    applyTranslations("en");
+  </script>
+</body>
+</html>
