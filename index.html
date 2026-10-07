@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A J | Personal Portfolio</title>
+  <title>Halyay | Personal Portfolio</title>
   <style>
     :root {
       --bg: #fafafa;
@@ -150,6 +150,7 @@
       font-size: 1.05rem;
       line-height: 1.8;
       opacity: 0.9;
+      white-space: pre-wrap; /* This keeps your paragraph breaks from the sheet! */
     }
 
     .read-more-btn {
@@ -206,6 +207,13 @@
 
     footer .domain { display: block; margin-top: 6px; font-weight: 600; color: var(--accent); }
 
+    .loading-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
     @media (max-width: 600px) {
       h1 { font-size: 2rem; }
       .tagline { font-size: 1.1rem; }
@@ -222,20 +230,22 @@
   <div class="container">
     <header>
       <div class="header-top">
-        <img src="logo.png" alt="A J logo" class="avatar">
+        <img src="logo.png" alt="Halyay logo" class="avatar">
         <div class="controls">
           <button id="themeToggle" class="toggle-btn">🌙 Dark Mode</button>
           <button id="langToggle" class="toggle-btn">🇸🇴 Soomaali</button>
         </div>
       </div>
-      <h1>A J</h1>
+      <h1>Halyay</h1>
       <p class="tagline" id="siteTagline">Thinker, Builder, and Observer.</p>
       <p class="bio" id="siteBio">Welcome to my personal space. I use this portfolio to document my journey, share my ideas, and write about the things I am learning. I write in English, Somali, and sometimes a mix of both, depending on what feels right for the story.</p>
     </header>
 
     <section>
       <h2 id="siteHeading">📝 Latest Thoughts & Articles</h2>
-      <div id="posts-container" class="posts-grid"></div>
+      <div id="posts-container" class="posts-grid">
+        <div class="loading-state" id="loadingMsg">Loading posts from the Magic Sheet...</div>
+      </div>
     </section>
 
     <section class="contact-section">
@@ -248,6 +258,8 @@
   </div>
 
   <script>
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXqSK3Rbg_japzEynEk2-ZsA07nAp_IBB1nPJxyebBh3z6j_-fJSbKXj4LJAOI0EvXuXJBH9PPBEZ0/pub?output=csv";
+
     const translations = {
       en: {
         tagline: "Thinker, Builder, and Observer.",
@@ -255,7 +267,7 @@
         heading: "📝 Latest Thoughts & Articles",
         readMore: "Read More →",
         showLess: "Show Less ↑",
-        footer: '&copy; 2026 A J. Built with passion and curiosity.<span class="domain">www.48du1k4d1r.com</span>',
+        footer: '&copy; 2026 Halyay. Built with passion and curiosity.<span class="domain">www.48du1k4d1r.com</span>',
         contactHeading: "📬 Get in Touch",
         contactText: "Want to chat, collaborate, or share an idea? The fastest way to reach me is on X.",
         contactBtn: "Message me on X →",
@@ -269,7 +281,7 @@
         heading: "📝 Fikradihii & Maqaaladii Ugu Dambeeyay",
         readMore: "Akhri Qoraalka Oo Dhan →",
         showLess: "Soo Gaabi ↑",
-        footer: '&copy; 2026 A J. Waxaa lagu dhisay xamaasad iyo xiiso.<span class="domain">www.48du1k4d1r.com</span>',
+        footer: '&copy; 2026 Halyay. Waxaa lagu dhisay xamaasad iyo xiiso.<span class="domain">www.48du1k4d1r.com</span>',
         contactHeading: "📬 Nala Soo Xiriir",
         contactText: "Ma doonaysaa inaan sheekaysano, wada shaqayno, ama fikrad wadaagno? Waddada ugu dhaqsaha badan ee aad iigu soo gaari karto waa X.",
         contactBtn: "Iigu soo dir X →",
@@ -281,70 +293,98 @@
 
     let currentLang = "en";
     let isDarkMode = localStorage.getItem("theme") === "dark";
-
-    const posts = [
-      {
-        title: "Safarkayga Barashada Teknolojiyadda (My Tech Journey)",
-        date: "Oktoobar 5, 2026",
-        tag: "mix",
-        summary: "Maanta waxaan bilaabayaa bog cusub. Today I am starting a new page to share my mind and my journey into building things on the web.",
-        fullText: "Halkan waxaan ku wadaagi doonaa fikradahayga. Here I will share my thoughts on technology, society, and life. Building this website from scratch using just basic code has been my first step. It feels great to have my own corner of the internet that I fully control. I will be updating this whenever inspiration strikes."
-      },
-      {
-        title: "The Power of Consistent Learning",
-        date: "Oktoobar 4, 2026",
-        tag: "en",
-        summary: "Learning a little bit every day compounds over time. You don't need to be an expert on day one.",
-        fullText: "When you commit to reading or building something small every single day, the results after a year are massive. This portfolio is proof of that. I didn't know how to build this a few days ago, but by taking it one step at a time, I now have a live website. The same rule applies to learning languages, coding, or building a business. Just don't stop."
-      },
-      {
-        title: "Muhiimadda ay leedahay in la qoro fikirkaaga",
-        date: "Oktoobar 3, 2026",
-        tag: "so",
-        summary: "Qoraalka waa hab fiican oo aad maskaxdaada ku nadiifin karto, fikradahaagana aad dadka kale ula wadaagi karto.",
-        fullText: "Markaad wax qorto, waxaad fursad u helaysaa inaad si qoto dheer uga fikirto waxa aad aaminsan tahay. Blog-gaan wuxuu ii noqon doonaa meel aan ku kaydiyo taariikhda fikirradayda. Sannado ka dib, waan soo laaban doonaa oo aan akhrin doonaa qoraalladaan, waana ku farxi doonaa inaan waqti geliyay."
-      }
-    ];
+    let postsData = [];
 
     const container = document.getElementById("posts-container");
+    const loadingMsg = document.getElementById("loadingMsg");
     const langToggleBtn = document.getElementById("langToggle");
     const themeToggleBtn = document.getElementById("themeToggle");
 
+    // A robust tool to read your Google Sheet data
+    function parseCSV(str) {
+        const arr = [];
+        let quote = false;
+        for (let row = 0, col = 0, c = 0; c < str.length; c++) {
+            let cc = str[c], nc = str[c+1];
+            arr[row] = arr[row] || [];
+            arr[row][col] = arr[row][col] || '';
+            if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
+            if (cc == '"') { quote = !quote; continue; }
+            if (cc == ',' && !quote) { ++col; continue; }
+            if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+            if (cc == '\r' && !quote) { continue; }
+            arr[row][col] += cc;
+        }
+        return arr;
+    }
+
+    async function fetchPosts() {
+        try {
+            const response = await fetch(SHEET_URL);
+            const csvText = await response.text();
+            const rawData = parseCSV(csvText);
+            
+            if (rawData.length > 1) {
+                const headers = rawData[0];
+                postsData = [];
+                for (let i = 1; i < rawData.length; i++) {
+                    if (rawData[i].length < headers.length) continue;
+                    const post = {};
+                    headers.forEach((h, idx) => {
+                        post[h.trim()] = rawData[i][idx] ? rawData[i][idx].trim() : "";
+                    });
+                    if (post.Title) postsData.push(post);
+                }
+                // Reverse so the newest post (at the bottom of the sheet) shows at the top
+                postsData.reverse(); 
+            }
+            renderPosts();
+        } catch (error) {
+            loadingMsg.textContent = "Could not load posts. Please check your internet connection.";
+        }
+    }
+
     function renderPosts() {
-      container.innerHTML = "";
+        container.innerHTML = ""; 
+        
+        if (postsData.length === 0) {
+            container.innerHTML = '<div class="loading-state">No posts found in the Magic Sheet yet. Add a row to your Google Sheet!</div>';
+            return;
+        }
 
-      posts.forEach(function(post) {
-        const card = document.createElement("article");
-        card.className = "post-card";
+        postsData.forEach(function(post) {
+            const card = document.createElement("article");
+            card.className = "post-card";
 
-        const tagLabel = post.tag === "en" ? "English" : post.tag === "so" ? "Soomaali" : "Mixed";
+            const tag = (post.Tag || "mix").toLowerCase();
+            const tagLabel = tag === "en" ? "English" : tag === "so" ? "Soomaali" : "Mixed";
 
-        card.innerHTML = `
-          <div class="post-header">
-            <span class="post-date">${post.date}</span>
-            <span class="tag ${post.tag}">${tagLabel}</span>
-          </div>
-          <h3 class="post-title">${post.title}</h3>
-          <p class="post-summary">${post.summary}</p>
-          <button class="read-more-btn">${translations[currentLang].readMore}</button>
-          <div class="post-full-text">${post.fullText}</div>
-        `;
+            card.innerHTML = `
+              <div class="post-header">
+                <span class="post-date">${post.Date || ""}</span>
+                <span class="tag ${tag}">${tagLabel}</span>
+              </div>
+              <h3 class="post-title">${post.Title}</h3>
+              <p class="post-summary">${post.Summary || ""}</p>
+              <button class="read-more-btn">${translations[currentLang].readMore}</button>
+              <div class="post-full-text">${post.FullText || ""}</div>
+            `;
 
-        container.appendChild(card);
+            container.appendChild(card);
 
-        const btn = card.querySelector(".read-more-btn");
-        const fullText = card.querySelector(".post-full-text");
+            const btn = card.querySelector(".read-more-btn");
+            const fullText = card.querySelector(".post-full-text");
 
-        btn.addEventListener("click", function() {
-          if (fullText.style.display === "none" || fullText.style.display === "") {
-            fullText.style.display = "block";
-            btn.textContent = translations[currentLang].showLess;
-          } else {
-            fullText.style.display = "none";
-            btn.textContent = translations[currentLang].readMore;
-          }
+            btn.addEventListener("click", function() {
+              if (fullText.style.display === "none" || fullText.style.display === "") {
+                fullText.style.display = "block";
+                btn.textContent = translations[currentLang].showLess;
+              } else {
+                fullText.style.display = "none";
+                btn.textContent = translations[currentLang].readMore;
+              }
+            });
         });
-      });
     }
 
     function applyTheme(dark) {
@@ -385,8 +425,11 @@
       applyTheme(!isDarkMode);
     });
 
+    // Start everything up
     applyTheme(isDarkMode);
     applyTranslations("en");
+    fetchPosts();
+
   </script>
 </body>
 </html>
