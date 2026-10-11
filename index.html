@@ -267,7 +267,8 @@
   </div>
 
   <script>
-    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXqSK3Rbg_japzEynEk2-ZsA07nAp_IBB1nPJxyebBh3z6j_-fJSbKXj4LJAOI0EvXuXJBH9PPBEZ0/pub?output=csv";
+    // CONNECTED TO YOUR NEW SHEET!
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/1mHQOonss0hiq2WSYc6qQgWhFMp29L3lJp5I5toxyfic/export?format=csv";
 
     const translations = {
       en: {
@@ -328,7 +329,8 @@
 
     async function fetchPosts() {
         try {
-            const response = await fetch(SHEET_URL);
+            // THE CACHE BUSTER: Adding a random time-stamp forces the browser to fetch fresh data instantly!
+            const response = await fetch(SHEET_URL + "&t=" + new Date().getTime());
             const csvText = await response.text();
             const rawData = parseCSV(csvText);
             
@@ -347,7 +349,7 @@
             }
             renderPosts();
         } catch (error) {
-            loadingMsg.textContent = "Could not load posts. Please check your internet connection.";
+            loadingMsg.textContent = "Could not load posts. Please check your internet connection or ensure your Google Sheet is shared publicly.";
         }
     }
 
@@ -366,7 +368,6 @@
             const tag = (post.Tag || "mix").toLowerCase();
             const tagLabel = tag === "en" ? "English" : tag === "so" ? "Soomaali" : "Mixed";
             
-            // Image Logic
             const imageUrl = post.ImageURL || "";
             let imageHTML = "";
             if (imageUrl) {
