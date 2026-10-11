@@ -49,7 +49,6 @@
     }
 
     .container { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
-
     header { margin-bottom: 60px; border-bottom: 1px solid var(--border); padding-bottom: 30px; }
 
     .header-top {
@@ -94,13 +93,9 @@
     }
 
     h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.02em; }
-
     .tagline { font-size: 1.25rem; color: var(--muted); margin-bottom: 24px; font-weight: 500; }
-
     .bio { font-size: 1.1rem; line-height: 1.7; color: var(--text); opacity: 0.9; }
-
     h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
-
     .posts-grid { display: flex; flex-direction: column; gap: 24px; }
 
     .post-card {
@@ -147,7 +142,6 @@
     }
 
     .post-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 12px; line-height: 1.3; color: var(--text); }
-
     .post-summary { color: var(--muted); font-size: 1.05rem; margin-bottom: 16px; }
 
     .post-full-text {
@@ -188,7 +182,6 @@
     }
 
     .contact-section h2 { justify-content: center; margin-bottom: 12px; }
-
     .contact-text { color: var(--muted); font-size: 1.05rem; margin-bottom: 24px; }
 
     .contact-btn {
@@ -215,13 +208,7 @@
     }
 
     footer .domain { display: block; margin-top: 6px; font-weight: 600; color: var(--accent); }
-
-    .loading-state {
-      text-align: center;
-      padding: 40px;
-      color: var(--muted);
-      font-style: italic;
-    }
+    .loading-state { text-align: center; padding: 40px; color: var(--muted); font-style: italic; }
 
     @media (max-width: 600px) {
       h1 { font-size: 2rem; }
@@ -247,7 +234,7 @@
       </div>
       <h1>Halyay</h1>
       <p class="tagline" id="siteTagline">Thinker, Builder, and Observer.</p>
-      <p class="bio" id="siteBio">Welcome to my personal space. I use this portfolio to document my journey, share my ideas, and write about the things I am learning. I write in English, Somali, and sometimes a mix of both, depending on what feels right for the story.</p>
+      <p class="bio" id="siteBio">Welcome to my personal space. I use this portfolio to document my journey, share my ideas, and write about the things I am learning. I write in English, Somali, and sometimes a mix of both, depending on what feels right for the.</p>
     </header>
 
     <section>
@@ -267,6 +254,7 @@
   </div>
 
   <script>
+    // EXACT URL TO YOUR SHEET
     const SHEET_URL = "https://docs.google.com/spreadsheets/d/1mHQOonss0hiq2WSYc6qQgWhFMp29L3lJp5I5toxyfic/export?format=csv";
 
     const translations = {
@@ -309,25 +297,28 @@
     const langToggleBtn = document.getElementById("langToggle");
     const themeToggleBtn = document.getElementById("themeToggle");
 
+    // BULLETPROOF CSV PARSER
     function parseCSV(str) {
         const arr = [];
         let quote = false;
-        for (let row = 0, col = 0, c = 0; c < str.length; c++) {
+        let row = 0, col = 0;
+        for (let c = 0; c < str.length; c++) {
             let cc = str[c], nc = str[c+1];
             arr[row] = arr[row] || [];
             arr[row][col] = arr[row][col] || '';
-            if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
-            if (cc == '"') { quote = !quote; continue; }
-            if (cc == ',' && !quote) { ++col; continue; }
-            if (cc == '\n' && !quote) { ++row; col = 0; continue; }
-            if (cc == '\r' && !quote) { continue; }
+            if (cc === '"' && quote && nc === '"') { arr[row][col] += cc; ++c; continue; }
+            if (cc === '"') { quote = !quote; continue; }
+            if (cc === ',' && !quote) { ++col; continue; }
+            if ((cc === '\n' || cc === '\r') && !quote) { ++row; col = 0; continue; }
             arr[row][col] += cc;
         }
-        return arr;
+        // Clean up all data
+        return arr.map(r => r.map(cell => cell ? cell.trim() : ''));
     }
 
     async function fetchPosts() {
         try {
+            // Cache buster ensures we always get the newest version of your sheet
             const response = await fetch(SHEET_URL + "&t=" + new Date().getTime());
             const csvText = await response.text();
             const rawData = parseCSV(csvText);
@@ -339,18 +330,17 @@
                     if (rawData[i].length < headers.length) continue;
                     const post = {};
                     headers.forEach((h, idx) => {
-                        post[h.trim()] = rawData[i][idx] ? rawData[i][idx].trim() : "";
+                        post[h] = rawData[i][idx] || "";
                     });
                     if (post.Title) postsData.push(post);
                 }
+                // Show newest posts first
                 postsData.reverse(); 
             }
             renderPosts();
         } catch (error) {
-            console.error("Error fetching posts:", error);
-            if (loadingMsg) {
-                loadingMsg.textContent = "Could not load posts. Please ensure your Google Sheet is set to 'Anyone with the link' can view.";
-            }
+            console.error("Fetch error:", error);
+            if (loadingMsg) loadingMsg.textContent = "Could not load posts. Please ensure your Google Sheet is set to 'Anyone with the link' can view.";
         }
     }
 
@@ -359,7 +349,7 @@
         container.innerHTML = ""; 
         
         if (postsData.length === 0) {
-            container.innerHTML = '<div class="loading-state">No posts found in the Magic Sheet yet. Add a row to your Google Sheet!</div>';
+            container.innerHTML = '<div class="loading-state">No posts found. Add a row to your Google Sheet!</div>';
             return;
         }
 
@@ -367,13 +357,15 @@
             const card = document.createElement("article");
             card.className = "post-card";
 
-            const tag = (post.Tag || "mix").toLowerCase();
+            // Forgiving tag matching: accepts "so", "somali", "en", "english", "mix"
+            const rawTag = (post.Tag || "mix").toLowerCase();
+            const tag = rawTag.includes("so") ? "so" : rawTag.includes("en") ? "en" : "mix";
             const tagLabel = tag === "en" ? "English" : tag === "so" ? "Soomaali" : "Mixed";
             
             const imageUrl = post.ImageURL || "";
             let imageHTML = "";
-            if (imageUrl) {
-                imageHTML = `<img src="${imageUrl}" alt="${post.Title}" class="post-image">`;
+            if (imageUrl && imageUrl.startsWith("http")) {
+                imageHTML = `<img src="${imageUrl}" alt="Post Image" class="post-image">`;
             }
 
             card.innerHTML = `
@@ -421,21 +413,14 @@
     function applyTranslations(lang) {
       currentLang = lang;
 
-      const taglineEl = document.getElementById('siteTagline');
-      const bioEl = document.getElementById('siteBio');
-      const headingEl = document.getElementById('siteHeading');
-      const footerEl = document.getElementById('siteFooter');
-      const contactHeadingEl = document.getElementById('contactHeading');
-      const contactTextEl = document.getElementById('contactText');
-      const contactLinkEl = document.getElementById('contactLink');
-
-      if (taglineEl) taglineEl.textContent = translations[lang].tagline;
-      if (bioEl) bioEl.textContent = translations[lang].bio;
-      if (headingEl) headingEl.textContent = translations[lang].heading;
-      if (footerEl) footerEl.innerHTML = translations[lang].footer;
-      if (contactHeadingEl) contactHeadingEl.textContent = translations[lang].contactHeading;
-      if (contactTextEl) contactTextEl.textContent = translations[lang].contactText;
-      if (contactLinkEl) contactLinkEl.textContent = translations[lang].contactBtn;
+      const el = (id) => document.getElementById(id);
+      if (el('siteTagline')) el('siteTagline').textContent = translations[lang].tagline;
+      if (el('siteBio')) el('siteBio').textContent = translations[lang].bio;
+      if (el('siteHeading')) el('siteHeading').textContent = translations[lang].heading;
+      if (el('siteFooter')) el('siteFooter').innerHTML = translations[lang].footer;
+      if (el('contactHeading')) el('contactHeading').textContent = translations[lang].contactHeading;
+      if (el('contactText')) el('contactText').textContent = translations[lang].contactText;
+      if (el('contactLink')) el('contactLink').textContent = translations[lang].contactBtn;
       if (langToggleBtn) langToggleBtn.textContent = translations[lang].langBtn;
       if (themeToggleBtn) themeToggleBtn.textContent = isDarkMode ? translations[lang].lightBtn : translations[lang].darkBtn;
 
