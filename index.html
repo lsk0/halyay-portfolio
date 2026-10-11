@@ -158,4 +158,306 @@
       color: var(--text);
       font-size: 1.05rem;
       line-height: 1.8;
-      opacity: 0
+      opacity: 0.9;
+      white-space: pre-wrap;
+    }
+
+    .read-more-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .read-more-btn:hover { text-decoration: underline; }
+
+    .contact-section {
+      margin-top: 60px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      transition: background 0.3s ease;
+    }
+
+    .contact-section h2 { justify-content: center; margin-bottom: 12px; }
+
+    .contact-text { color: var(--muted); font-size: 1.05rem; margin-bottom: 24px; }
+
+    .contact-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #ffffff;
+      padding: 12px 28px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .contact-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35); }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 30px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    footer .domain { display: block; margin-top: 6px; font-weight: 600; color: var(--accent); }
+
+    .loading-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2rem; }
+      .tagline { font-size: 1.1rem; }
+      .post-card { padding: 20px; }
+      .toggle-btn { padding: 6px 12px; font-size: 0.8rem; }
+      .header-top { flex-direction: column; align-items: flex-start; }
+      .controls { width: 100%; justify-content: flex-start; }
+      .contact-section { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="header-top">
+        <img src="logo.png" alt="Halyay logo" class="avatar">
+        <div class="controls">
+          <button id="themeToggle" class="toggle-btn">🌙 Dark Mode</button>
+          <button id="langToggle" class="toggle-btn">🇸🇴 Soomaali</button>
+        </div>
+      </div>
+      <h1>Halyay</h1>
+      <p class="tagline" id="siteTagline">Thinker, Builder, and Observer.</p>
+      <p class="bio" id="siteBio">Welcome to my personal space. I use this portfolio to document my journey, share my ideas, and write about the things I am learning. I write in English, Somali, and sometimes a mix of both, depending on what feels right for the story.</p>
+    </header>
+
+    <section>
+      <h2 id="siteHeading">📝 Latest Thoughts & Articles</h2>
+      <div id="posts-container" class="posts-grid">
+        <div class="loading-state" id="loadingMsg">Loading posts from the Magic Sheet...</div>
+      </div>
+    </section>
+
+    <section class="contact-section">
+      <h2 id="contactHeading">📬 Get in Touch</h2>
+      <p id="contactText" class="contact-text">Want to chat, collaborate, or share an idea? The fastest way to reach me is on X.</p>
+      <a id="contactLink" class="contact-btn" href="https://x.com/halyay" target="_blank" rel="noopener noreferrer">Message me on X →</a>
+    </section>
+
+    <footer id="siteFooter"></footer>
+  </div>
+
+  <script>
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/1mHQOonss0hiq2WSYc6qQgWhFMp29L3lJp5I5toxyfic/export?format=csv";
+
+    const translations = {
+      en: {
+        tagline: "Thinker, Builder, and Observer.",
+        bio: "Welcome to my personal space. I use this portfolio to document my journey, share my ideas, and write about the things I am learning. I write in English, Somali, and sometimes a mix of both, depending on what feels right for the story.",
+        heading: "📝 Latest Thoughts & Articles",
+        readMore: "Read More →",
+        showLess: "Show Less ↑",
+        footer: '&copy; 2026 Halyay. Built with passion and curiosity.<span class="domain">www.48du1k4d1r.com</span>',
+        contactHeading: "📬 Get in Touch",
+        contactText: "Want to chat, collaborate, or share an idea? The fastest way to reach me is on X.",
+        contactBtn: "Message me on X →",
+        langBtn: "🇸🇴 Soomaali",
+        darkBtn: "🌙 Dark Mode",
+        lightBtn: "☀️ Light Mode"
+      },
+      so: {
+        tagline: "Fakare, Abuure, iyo Daawade.",
+        bio: "Soo dhawoow bogayga gaarka ah. Waxaan boggaan u isticmaalaa inaan ku xuso safarkayga, ku wadaago fikradahayga, oo aan ku qoro waxyaabaha aan baranayo. Waxaan ku qoraa Ingiriisi, Soomaali, iyo mararka qaar isku-dhaf labadaba ah, iyadoo ku xiran hadba waxa ii la qumman.",
+        heading: "📝 Fikradihii & Maqaaladii Ugu Dambeeyay",
+        readMore: "Akhri Qoraalka Oo Dhan →",
+        showLess: "Soo Gaabi ↑",
+        footer: '&copy; 2026 Halyay. Waxaa lagu dhisay xamaasad iyo xiiso.<span class="domain">www.48du1k4d1r.com</span>',
+        contactHeading: "📬 Nala Soo Xiriir",
+        contactText: "Ma doonaysaa inaan sheekaysano, wada shaqayno, ama fikrad wadaagno? Waddada ugu dhaqsaha badan ee aad iigu soo gaari karto waa X.",
+        contactBtn: "Iigu soo dir X →",
+        langBtn: "🇬🇧 English",
+        darkBtn: "🌙 Hab Madow",
+        lightBtn: "☀️ Hab Cad"
+      }
+    };
+
+    let currentLang = "en";
+    let isDarkMode = localStorage.getItem("theme") === "dark";
+    let postsData = [];
+
+    const container = document.getElementById("posts-container");
+    const loadingMsg = document.getElementById("loadingMsg");
+    const langToggleBtn = document.getElementById("langToggle");
+    const themeToggleBtn = document.getElementById("themeToggle");
+
+    function parseCSV(str) {
+        const arr = [];
+        let quote = false;
+        for (let row = 0, col = 0, c = 0; c < str.length; c++) {
+            let cc = str[c], nc = str[c+1];
+            arr[row] = arr[row] || [];
+            arr[row][col] = arr[row][col] || '';
+            if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
+            if (cc == '"') { quote = !quote; continue; }
+            if (cc == ',' && !quote) { ++col; continue; }
+            if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+            if (cc == '\r' && !quote) { continue; }
+            arr[row][col] += cc;
+        }
+        return arr;
+    }
+
+    async function fetchPosts() {
+        try {
+            const response = await fetch(SHEET_URL + "&t=" + new Date().getTime());
+            const csvText = await response.text();
+            const rawData = parseCSV(csvText);
+            
+            if (rawData.length > 1) {
+                const headers = rawData[0];
+                postsData = [];
+                for (let i = 1; i < rawData.length; i++) {
+                    if (rawData[i].length < headers.length) continue;
+                    const post = {};
+                    headers.forEach((h, idx) => {
+                        post[h.trim()] = rawData[i][idx] ? rawData[i][idx].trim() : "";
+                    });
+                    if (post.Title) postsData.push(post);
+                }
+                postsData.reverse(); 
+            }
+            renderPosts();
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+            if (loadingMsg) {
+                loadingMsg.textContent = "Could not load posts. Please ensure your Google Sheet is set to 'Anyone with the link' can view.";
+            }
+        }
+    }
+
+    function renderPosts() {
+        if (!container) return;
+        container.innerHTML = ""; 
+        
+        if (postsData.length === 0) {
+            container.innerHTML = '<div class="loading-state">No posts found in the Magic Sheet yet. Add a row to your Google Sheet!</div>';
+            return;
+        }
+
+        postsData.forEach(function(post) {
+            const card = document.createElement("article");
+            card.className = "post-card";
+
+            const tag = (post.Tag || "mix").toLowerCase();
+            const tagLabel = tag === "en" ? "English" : tag === "so" ? "Soomaali" : "Mixed";
+            
+            const imageUrl = post.ImageURL || "";
+            let imageHTML = "";
+            if (imageUrl) {
+                imageHTML = `<img src="${imageUrl}" alt="${post.Title}" class="post-image">`;
+            }
+
+            card.innerHTML = `
+              <div class="post-header">
+                <span class="post-date">${post.Date || ""}</span>
+                <span class="tag ${tag}">${tagLabel}</span>
+              </div>
+              ${imageHTML}
+              <h3 class="post-title">${post.Title}</h3>
+              <p class="post-summary">${post.Summary || ""}</p>
+              <button class="read-more-btn">${translations[currentLang].readMore}</button>
+              <div class="post-full-text">${post.FullText || ""}</div>
+            `;
+
+            container.appendChild(card);
+
+            const btn = card.querySelector(".read-more-btn");
+            const fullText = card.querySelector(".post-full-text");
+
+            btn.addEventListener("click", function() {
+              if (fullText.style.display === "none" || fullText.style.display === "") {
+                fullText.style.display = "block";
+                btn.textContent = translations[currentLang].showLess;
+              } else {
+                fullText.style.display = "none";
+                btn.textContent = translations[currentLang].readMore;
+              }
+            });
+        });
+    }
+
+    function applyTheme(dark) {
+      isDarkMode = dark;
+      if (dark) {
+        document.body.classList.add("dark-mode");
+        themeToggleBtn.textContent = translations[currentLang].lightBtn;
+        localStorage.setItem("theme", "dark");
+      } else {
+        document.body.classList.remove("dark-mode");
+        themeToggleBtn.textContent = translations[currentLang].darkBtn;
+        localStorage.setItem("theme", "light");
+      }
+    }
+
+    function applyTranslations(lang) {
+      currentLang = lang;
+
+      const taglineEl = document.getElementById('siteTagline');
+      const bioEl = document.getElementById('siteBio');
+      const headingEl = document.getElementById('siteHeading');
+      const footerEl = document.getElementById('siteFooter');
+      const contactHeadingEl = document.getElementById('contactHeading');
+      const contactTextEl = document.getElementById('contactText');
+      const contactLinkEl = document.getElementById('contactLink');
+
+      if (taglineEl) taglineEl.textContent = translations[lang].tagline;
+      if (bioEl) bioEl.textContent = translations[lang].bio;
+      if (headingEl) headingEl.textContent = translations[lang].heading;
+      if (footerEl) footerEl.innerHTML = translations[lang].footer;
+      if (contactHeadingEl) contactHeadingEl.textContent = translations[lang].contactHeading;
+      if (contactTextEl) contactTextEl.textContent = translations[lang].contactText;
+      if (contactLinkEl) contactLinkEl.textContent = translations[lang].contactBtn;
+      if (langToggleBtn) langToggleBtn.textContent = translations[lang].langBtn;
+      if (themeToggleBtn) themeToggleBtn.textContent = isDarkMode ? translations[lang].lightBtn : translations[lang].darkBtn;
+
+      renderPosts();
+    }
+
+    if (langToggleBtn) {
+        langToggleBtn.addEventListener("click", function() {
+            const newLang = currentLang === "en" ? "so" : "en";
+            applyTranslations(newLang);
+        });
+    }
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener("click", function() {
+            applyTheme(!isDarkMode);
+        });
+    }
+
+    applyTheme(isDarkMode);
+    applyTranslations("en");
+    fetchPosts();
+  </script>
+</body>
+</html>
