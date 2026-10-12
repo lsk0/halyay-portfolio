@@ -388,7 +388,7 @@
         loading: "Loading posts…", noPostsTitle: "Nothing here just yet.",
         noPosts: "Add a post to the Google Sheet to see it appear here.",
         loadErrorTitle: "Posts couldn’t be loaded.",
-        loadError: "For the public website, set Google Sheets sharing to “Anyone with the link — Viewer”. The header row must include Title, Tag, Summary, and FullText; Date (or Data), ImageURL, and Category are also supported.",
+        loadError: "Set Google Sheets General access to “Anyone with the link — Viewer”. Columns A:G are read as Title, Data, Tag, Summary, FullText, ImageURL, Category.",
         invalidSheet: "The sheet did not return a CSV with a Title column. Check the sharing settings and the spreadsheet tab.",
         footer: "Built with curiosity."
       },
@@ -407,7 +407,7 @@
         loading: "Qoraallada waa la soo gelinayaa…", noPostsTitle: "Weli wax qoraal ah ma jiro.",
         noPosts: "Ku dar qoraal Google Sheet-ka si uu halkan uga muuqdo.",
         loadErrorTitle: "Qoraallada lama soo gelin karin.",
-        loadError: "Si bogga dadweynuhu u akhriyo, Google Sheet-ka ka dhig “Anyone with the link — Viewer”. Safka cinwaannadu waa inuu leeyahay Title, Tag, Summary iyo FullText; Date (ama Data), ImageURL iyo Category-na waa la taageeraa.",
+        loadError: "Google Sheets General access ka dhig “Anyone with the link — Viewer”. Tiirarka A:G waxaa loo akhriyaa Title, Data, Tag, Summary, FullText, ImageURL, Category.",
         invalidSheet: "Sheet-ku ma soo celin CSV leh tiirka Title. Hubi oggolaanshaha iyo tab-ka spreadsheet-ka.",
         footer: "Waxaa lagu dhisay xiise iyo waxbarasho."
       }
@@ -660,23 +660,27 @@
           }
 
           const columns = response.table?.cols || [];
-          const headers = columns.map((column, index) => normalizeKey(column.label || column.id || `column${index + 1}`));
-          if (!headers.some((header) => ["title", "titleen", "titleso", "titlesomali"].includes(header))) {
-            finish(new Error("The first worksheet does not contain a Title column. Check the sheet tab and header row."));
+          if (columns.length < 7) {
+            finish(new Error("Expected columns A:G: Title, Data, Tag, Summary, FullText, ImageURL, Category."));
             return;
           }
 
+          // This sheet's schema is fixed by position, so use A:G even if Google
+          // returns blank or generated column labels.
+          const keys = ["title", "data", "tag", "summary", "fulltext", "imageurl", "category"];
           const rows = (response.table?.rows || []).map((row) => {
             const post = {};
-            columns.forEach((column, index) => {
-              const key = headers[index];
+            keys.forEach((key, index) => {
               const cell = row?.c?.[index];
               let value = cell && cell.f !== undefined && cell.f !== null ? cell.f : cell?.v;
               if (value instanceof Date && !Number.isNaN(value.getTime())) value = value.toLocaleDateString();
               post[key] = value == null ? "" : String(value).trim();
             });
             return post;
-          }).filter((post) => getField(post, ["Title", "TitleEN", "TitleSO", "TitleSomali"]) !== "");
+          }).filter((post) => {
+            const title = getField(post, ["Title"]);
+            return title !== "" && title.toLowerCase() !== "title";
+          });
 
           finish(null, rows);
         };
@@ -691,23 +695,42 @@
       });
     }
 
-    async function fetchPosts() {
-      postsContainer.setAttribute("aria-busy", "true");
-      loadState = "loading";
+    let isFetchingPosts = false;
+
+    async function fetchPosts(silent = false) {
+      if (isFetchingPosts) return;
+      isFetchingPosts = true;
       const sheetId = "1mHQOonss0hiq2WSYc6qQgWhFMp29L3lJp5I5toxyfic";
 
+      if (!silent && !postsData.length) {
+        postsContainer.setAttribute("aria-busy", "true");
+        loadState = "loading";
+      }
+
       try {
-        postsData = await fetchSheetRowsWithJsonp(sheetId);
-        // Keep the existing row convention: newest article rows appear first.
-        postsData.reverse();
+        const latestPosts = await fetchSheetRowsWithJsonp(sheetId);
+        postsData = latestPosts.reverse();
         loadState = postsData.length ? "loaded" : "empty";
         renderPosts();
       } catch (error) {
         console.error("Halyay sheet load error:", error);
-        loadState = "error";
-        renderEmptyState(true);
+        // Keep any articles already on screen during a background refresh.
+        if (!postsData.length && !silent) {
+          loadState = "error";
+          renderEmptyState(true);
+        }
+      } finally {
+        isFetchingPosts = false;
       }
     }
+
+    // New rows added to Google Sheets publish on the site automatically.
+    window.setInterval(() => {
+      if (!document.hidden) fetchPosts(true);
+    }, 60000);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) fetchPosts(true);
+    });
 
     document.querySelectorAll(".language-option").forEach((button) => {
       button.addEventListener("click", () => translatePage(button.dataset.language));
