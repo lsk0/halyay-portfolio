@@ -97,6 +97,8 @@
     }
     .brand { color: var(--text); background: transparent; font-family: Georgia, "Times New Roman", serif; font-size: 1.72rem; font-weight: 700; letter-spacing: .075em; line-height: 1; white-space: nowrap; text-transform: uppercase; }
     .brand:hover { color: var(--accent); }
+    .brand-logo { display: block; width: clamp(170px, 22vw, 235px); height: auto; color: var(--text); overflow: visible; }
+    .brand-emblem { color: var(--accent); }
     .brand-mark { display: none; }
     .category-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
     .category-tab { border: 1px solid var(--line); border-radius: 999px; padding: 7px 15px; color: var(--muted); background: transparent; font-size: .83rem; font-weight: 750; cursor: pointer; }
@@ -291,7 +293,17 @@
 
   <div class="site-nav-wrap">
     <nav class="site-nav" aria-label="Main navigation">
-      <a class="brand" href="#home" aria-label="Halyay home">HALYAY</a>
+      <a class="brand" href="#home" aria-label="Halyay home">
+          <svg class="brand-logo" viewBox="0 0 330 76" role="img" aria-label="Halyay logo">
+            <g class="brand-emblem" transform="translate(2 3)">
+              <circle cx="35" cy="35" r="32" fill="none" stroke="currentColor" stroke-width="3.5"/>
+              <circle cx="35" cy="35" r="27.5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M19 17h9v12h14V17h9v36h-9V40H28v13h-9z" fill="currentColor"/>
+              <path d="M35 26l3.6 7.3 8.1 1.2-5.9 5.7 1.4 8.1-7.2-3.8-7.2 3.8 1.4-8.1-5.9-5.7 8.1-1.2z" fill="var(--paper)"/>
+            </g>
+            <text x="82" y="51" fill="currentColor" font-family="Georgia, 'Times New Roman', serif" font-size="43" font-weight="700" letter-spacing="1.5">HALYAY</text>
+          </svg>
+        </a>
       <div class="nav-right">
         <div class="nav-links">
           <a href="#home" data-i18n="navHome">Home</a>
