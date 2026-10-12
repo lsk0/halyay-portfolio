@@ -95,16 +95,13 @@
       justify-content: space-between;
       gap: 28px;
     }
-    .brand {
-      color: var(--text);
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: -.055em;
-      line-height: 1;
-      white-space: nowrap;
-    }
-    .brand-mark { color: var(--accent); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .7em; vertical-align: .22em; margin-left: 2px; }
+    .brand { color: var(--text); background: transparent; font-family: Georgia, "Times New Roman", serif; font-size: 1.72rem; font-weight: 700; letter-spacing: .075em; line-height: 1; white-space: nowrap; text-transform: uppercase; }
+    .brand:hover { color: var(--accent); }
+    .brand-mark { display: none; }
+    .category-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
+    .category-tab { border: 1px solid var(--line); border-radius: 999px; padding: 7px 15px; color: var(--muted); background: transparent; font-size: .83rem; font-weight: 750; cursor: pointer; }
+    .category-tab[aria-pressed="true"] { color: var(--paper); background: var(--text); border-color: var(--text); }
+    .image-fallback { display: none; }
     .nav-right { display: flex; align-items: center; justify-content: flex-end; gap: clamp(12px, 2.5vw, 30px); }
     .nav-links { display: flex; gap: clamp(12px, 2.5vw, 28px); align-items: center; }
     .nav-links a {
@@ -294,11 +291,12 @@
 
   <div class="site-nav-wrap">
     <nav class="site-nav" aria-label="Main navigation">
-      <a class="brand" href="#home" aria-label="Halyay home">Halyay<span class="brand-mark" aria-hidden="true">✦</span></a>
+      <a class="brand" href="#home" aria-label="Halyay home">HALYAY</a>
       <div class="nav-right">
         <div class="nav-links">
           <a href="#home" data-i18n="navHome">Home</a>
-          <a href="#writing" data-i18n="navWriting">Writing</a>
+          <a href="#writing" data-category-link="blog" data-i18n="navBlog">Blog</a>
+          <a href="#writing" data-category-link="opinion" data-i18n="navOpinion">Opinion</a>
           <a href="#about" data-i18n="navAbout">About</a>
           <a href="#contact" data-i18n="navContact">Contact</a>
         </div>
@@ -313,7 +311,7 @@
   <main class="page-shell">
     <section class="intro" id="home">
       <p class="eyebrow" data-i18n="eyebrow">A PERSONAL SPACE · ENGLISH &amp; SOMALI</p>
-      <h1 data-i18n="tagline">Thinker, Builder, and Observer.</h1>
+      <h1 data-i18n="tagline">Ideas, stories, and perspectives.</h1>
     </section>
 
     <section class="writing-section" id="writing">
@@ -322,7 +320,11 @@
           <p class="section-kicker" data-i18n="writingKicker">THE JOURNAL</p>
           <h2 id="siteHeading" data-i18n="heading">Recent Posts</h2>
         </div>
-        <p class="section-aside" data-i18n="postsAside">Notes, stories, and things worth sharing.</p>
+        <p class="section-aside" data-i18n="postsAside">Writing from my perspective, in English and Somali.</p>
+      </div>
+      <div class="category-tabs" role="group" aria-label="Filter posts by category">
+        <button class="category-tab" type="button" data-category="blog" aria-pressed="true" data-i18n="navBlog">Blog</button>
+        <button class="category-tab" type="button" data-category="opinion" aria-pressed="false" data-i18n="navOpinion">Opinion</button>
       </div>
       <div id="posts-container" class="posts-list" aria-live="polite" aria-busy="true">
         <p class="empty-state" id="loadingMsg" data-i18n="loading">Loading posts…</p>
@@ -360,11 +362,11 @@
 
     const translations = {
       en: {
-        navHome: "Home", navWriting: "Writing", navAbout: "About", navContact: "Contact",
+        navHome: "Home", navBlog: "Blog", navOpinion: "Opinion", navAbout: "About", navContact: "Contact",
         eyebrow: "A PERSONAL SPACE · ENGLISH & SOMALI",
-        tagline: "Thinker, Builder, and Observer.",
-        writingKicker: "THE JOURNAL", heading: "Recent Posts",
-        postsAside: "Notes, stories, and things worth sharing.",
+        tagline: "Ideas, stories, and perspectives.",
+        writingKicker: "THE JOURNAL", heading: "From the journal",
+        postsAside: "Writing from my perspective, in English and Somali.",
         aboutKicker: "A LITTLE CONTEXT", aboutHeading: "About this space",
         bio: "Welcome to my personal space. I use this portfolio to document my journey, share my ideas, and write about the things I am learning. I write in English, Somali, and sometimes a mix of both, depending on what feels right for the story.",
         contactKicker: "SAY HELLO", contactHeading: "Get in touch",
@@ -379,11 +381,11 @@
         footer: "Built with curiosity."
       },
       so: {
-        navHome: "Hoyga", navWriting: "Qoraallo", navAbout: "Ku Saabsan", navContact: "Xiriir",
+        navHome: "Hoyga", navBlog: "Blog", navOpinion: "Aragti", navAbout: "Ku Saabsan", navContact: "Xiriir",
         eyebrow: "BOG GAAR AH · SOOMAALI IYO INGIRIISI",
-        tagline: "Fakare, Abuure, iyo Daawade.",
-        writingKicker: "QORAALLO", heading: "Qoraalladii Ugu Dambeeyay",
-        postsAside: "Fikrado, sheekooyin, iyo waxyaabo mudan in la wadaago.",
+        tagline: "Fikrado, sheekooyin, iyo aragtiyo.",
+        writingKicker: "JOURNAL-KA", heading: "Qoraallada",
+        postsAside: "Qoraallo iyo aragtiyo ku qoran Soomaali iyo Ingiriisi.",
         aboutKicker: "FAAHFAAHIN KOOBAN", aboutHeading: "Ku saabsan boggan",
         bio: "Ku soo dhawoow boggayga gaarka ah. Waxaan boggan u isticmaalaa inaan ku diiwaangeliyo safarkayga, ku wadaago fikradahayga, oo aan ku qoro waxyaabaha aan baranayo. Waxaan wax ku qoraa Ingiriisi, Soomaali, mararka qaarkoodna labada luqadood ayaan isku daraa.",
         contactKicker: "NALA SOO HADAL", contactHeading: "Nala soo xiriir",
@@ -400,6 +402,7 @@
     };
 
     let currentLang = "en";
+    let currentCategory = "blog";
     let postsData = [];
     let loadState = "loading";
 
@@ -448,6 +451,14 @@
         if (value !== undefined && String(value).trim() !== "") return String(value).trim();
       }
       return "";
+    }
+
+    function normalizeImageUrl(value) {
+      const url = String(value || "").trim();
+      if (!url) return "";
+      const match = url.match(/drive\.google\.com\/file\/d\/([\w-]+)/i) || url.match(/[?&]id=([\w-]+)/i);
+      if (/drive\.google\.com/i.test(url) && match) return \`https://drive.google.com/uc?export=view&id=\${match[1]}\`;
+      return url;
     }
 
     function getLocalizedField(post, base) {
@@ -507,13 +518,39 @@
         return;
       }
 
-      postsData.forEach((post) => {
+      const visiblePosts = postsData.filter((post) => {
+        const category = (getField(post, ["Category", "Type", "Section"]) || "blog").toLowerCase();
+        const opinion = /opinion|aragt|ra'yi|rayi/.test(category);
+        if ((currentCategory === "opinion") !== opinion) return false;
+        const language = getField(post, ["Tag", "Language"]).toLowerCase();
+        const so = /somali|soomaali|^so$/.test(language);
+        const en = /english|ingiriisi|^en$/.test(language);
+        const mixed = /mixed|both|isku-dhaf|bilingual/.test(language);
+        if (currentLang === "so" && en && !so && !mixed) return false;
+        if (currentLang === "en" && so && !en && !mixed) return false;
+        return true;
+      });
+      if (!visiblePosts.length) {
+        postsContainer.setAttribute("aria-busy", "false");
+        const empty = makeElement("div", "empty-state");
+        const title = makeElement("strong", "", currentCategory === "opinion"
+          ? (currentLang === "so" ? "Weli aragti lama daabicin." : "No opinions published yet.")
+          : translations[currentLang].noPostsTitle);
+        const detail = makeElement("p", "", currentLang === "so"
+          ? "Ku dar qoraal oo Category-giisu yahay Blog ama Opinion."
+          : "Add a row to your Google Sheet and set Category to Blog or Opinion.");
+        detail.style.margin = "0";
+        empty.append(title, detail);
+        postsContainer.appendChild(empty);
+        return;
+      }
+      visiblePosts.forEach((post) => {
         const titleText = getLocalizedField(post, "Title") || getField(post, ["Title"]);
         const summaryText = getLocalizedField(post, "Summary") || getField(post, ["Summary", "Description"]);
         const fullText = getLocalizedField(post, "FullText") || getField(post, ["FullText", "Body", "Content"]);
         const dateText = getField(post, ["Date", "PublishedAt"]);
         const tagValue = getField(post, ["Tag", "Language"]).toLowerCase();
-        const imageUrl = getField(post, ["ImageURL", "Image", "ImageUrl"]);
+        const imageUrl = normalizeImageUrl(getField(post, ["ImageURL", "Image", "ImageUrl"]));
         const tagType = tagValue.includes("so") ? "so" : tagValue.includes("en") ? "en" : "mix";
         const tagLabel = tagType === "so" ? translations[currentLang].somali : tagType === "en" ? translations[currentLang].english : translations[currentLang].mixed;
 
@@ -559,6 +596,11 @@
           const image = makeElement("img", "post-image");
           image.src = imageUrl;
           image.alt = titleText ? `Image for ${titleText}` : "Post image";
+          image.addEventListener("error", () => {
+            image.hidden = true;
+            image.classList.add("image-fallback");
+            article.classList.remove("post-item--with-image");
+          }, { once: true });
           image.loading = "lazy";
           image.decoding = "async";
           image.referrerPolicy = "no-referrer";
@@ -610,6 +652,20 @@
 
     document.querySelectorAll(".language-option").forEach((button) => {
       button.addEventListener("click", () => translatePage(button.dataset.language));
+    });
+    document.querySelectorAll(".category-tab").forEach((button) => {
+      button.addEventListener("click", () => {
+        currentCategory = button.dataset.category === "opinion" ? "opinion" : "blog";
+        document.querySelectorAll(".category-tab").forEach((tab) => tab.setAttribute("aria-pressed", String(tab.dataset.category === currentCategory)));
+        renderPosts();
+      });
+    });
+    document.querySelectorAll("[data-category-link]").forEach((link) => {
+      link.addEventListener("click", () => {
+        currentCategory = link.dataset.categoryLink === "opinion" ? "opinion" : "blog";
+        document.querySelectorAll(".category-tab").forEach((tab) => tab.setAttribute("aria-pressed", String(tab.dataset.category === currentCategory)));
+        if (loadState === "loaded") renderPosts();
+      });
     });
 
     let initialLanguage = "en";
