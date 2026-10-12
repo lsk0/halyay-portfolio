@@ -369,7 +369,7 @@
   <script>
     // The sheet and existing column names are preserved from the current Halyay site.
     // Set the spreadsheet to allow public viewing if you want this public site to fetch its CSV.
-    const SHEET_URL = "https://docs.google.com/spreadsheets/d/1mHQOonss0hiq2WSYc6qQgWhFMp29L3lJp5I5toxyfic/export?format=csv";
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9_kMH-lEz31pJZc8JHLu8bDdnpM16AMy5jhRKI_rc47J629UM7qcGPxJ1rMMH3ICmEVyoLoK2lOcw/pub?output=csv";
     const LANGUAGE_STORAGE_KEY = "halyay-language";
 
     const translations = {
@@ -629,6 +629,7 @@
       const sheetId = "1mHQOonss0hiq2WSYc6qQgWhFMp29L3lJp5I5toxyfic";
       const csvUrls = [
         SHEET_URL,
+        `https://docs.google.com/spreadsheets/d/e/2PACX-1vS9_kMH-lEz31pJZc8JHLu8bDdnpM16AMy5jhRKI_rc47J629UM7qcGPxJ1rMMH3ICmEVyoLoK2lOcw/pub?output=csv&single=true`,
         `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`
       ];
       let lastError = null;
