@@ -560,7 +560,7 @@
         const titleText = getLocalizedField(post, "Title") || getField(post, ["Title"]);
         const summaryText = getLocalizedField(post, "Summary") || getField(post, ["Summary", "Description"]);
         const fullText = getLocalizedField(post, "FullText") || getField(post, ["FullText", "Body", "Content"]);
-        const dateText = getField(post, ["Date", "PublishedAt"]);
+        const dateText = getField(post, ["Date", "Data", "PublishedAt"]);
         const tagValue = getField(post, ["Tag", "Language"]).toLowerCase();
         const imageUrl = normalizeImageUrl(getField(post, ["ImageURL", "Image", "ImageUrl"]));
         const tagType = tagValue.includes("so") ? "so" : tagValue.includes("en") ? "en" : "mix";
@@ -625,15 +625,38 @@
 
     async function fetchPosts() {
       postsContainer.setAttribute("aria-busy", "true");
+      loadState = "loading";
+      const sheetId = "1mHQOonss0hiq2WSYc6qQgWhFMp29L3lJp5I5toxyfic";
+      const csvUrls = [
+        SHEET_URL,
+        `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`
+      ];
+      let lastError = null;
       try {
-        const separator = SHEET_URL.includes("?") ? "&" : "?";
-        const response = await fetch(`${SHEET_URL}${separator}cache=${Date.now()}`, { cache: "no-store" });
-        if (!response.ok) throw new Error(`Google Sheets responded with ${response.status}`);
-        const csvText = await response.text();
-        if (/^\s*(?:<!doctype\s+html|<html|<head|<body|<form)\b/i.test(csvText)) {
-          throw new Error("The sheet returned HTML instead of CSV. Check its sharing settings.");
+        let rows = [];
+        for (const url of csvUrls) {
+          try {
+            const separator = url.includes("?") ? "&" : "?";
+            const response = await fetch(`${url}${separator}cache=${Date.now()}`, { cache: "no-store" });
+            if (!response.ok) throw new Error(`Google Sheets responded with ${response.status}`);
+            const csvText = await response.text();
+            if (/^\s*(?:<!doctype\s+html|<html|<head|<body|<form)\b/i.test(csvText)) {
+              throw new Error("Google returned a web page instead of CSV data.");
+            }
+            const parsed = parseCSV(csvText);
+            const keys = (parsed[0] || []).map(normalizeKey);
+            if (parsed.length < 2 || !keys.some((key) => ["title", "titleen", "titleso", "titlesomali"].includes(key))) {
+              throw new Error("CSV headers are missing or the wrong sheet tab was returned.");
+            }
+            rows = parsed;
+            break;
+          } catch (error) {
+            lastError = error;
+          }
         }
-        const rows = parseCSV(csvText);
+        if (!rows.length) {
+          throw new Error(`Could not read the sheet. ${lastError?.message || "Check that it is published as CSV and publicly viewable."}`);
+        }
         if (rows.length < 2) {
           postsData = [];
           loadState = "empty";
