@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f7f8fa">
+  <meta name="description" content="Halyay — a personal space for ideas, work, and observations in English and Somali.">
+  <title>Halyay — Ideas, work &amp; observations</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f7f8fa;
+      --paper: #ffffff;
+      --text: #192230;
+      --muted: #687385;
+      --soft: #eef2f7;
+      --line: #e0e5ec;
+      --accent: #1769c2;
+      --accent-hover: #0e4e97;
+      --tag-en-bg: #e6f0ff;
+      --tag-en-text: #1a5295;
+      --tag-so-bg: #e3f6ec;
+      --tag-so-text: #176744;
+      --tag-mix-bg: #f1e9ff;
+      --tag-mix-text: #6841a4;
+      --shadow: 0 18px 48px rgba(26, 42, 66, .09);
+      --banner-overlay: linear-gradient(90deg, rgba(9, 31, 59, .08), rgba(9, 31, 59, 0));
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --page: #0d1420;
+        --paper: #121d2b;
+        --text: #eaf0f8;
+        --muted: #a0aec0;
+        --soft: #192638;
+        --line: #29374a;
+        --accent: #79b7ff;
+        --accent-hover: #acd2ff;
+        --tag-en-bg: #1a3553;
+        --tag-en-text: #b5d7ff;
+        --tag-so-bg: #173a30;
+        --tag-so-text: #a5ebca;
+        --tag-mix-bg: #33254c;
+        --tag-mix-text: #d8c2ff;
+        --shadow: 0 18px 48px rgba(0, 0, 0, .20);
+        --banner-overlay: linear-gradient(90deg, rgba(4, 13, 25, .16), rgba(4, 13, 25, 0));
+      }
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 22px; }
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color .2s ease, color .2s ease;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: var(--accent); text-decoration: none; text-underline-offset: .2em; }
+    a:hover { color: var(--accent-hover); }
+    button { font: inherit; }
+    button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+
+    .banner {
+      width: min(100%, 1600px);
+      margin-inline: auto;
+      aspect-ratio: 2.81 / 1;
+      max-height: 470px;
+      min-height: 150px;
+      overflow: hidden;
+      background: #1674d1;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .banner::after { content: ""; position: absolute; inset: 0; background: var(--banner-overlay); pointer-events: none; }
+    .banner img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+
+    .site-nav-wrap {
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+    }
+    .site-nav {
+      width: min(100% - 40px, 1040px);
+      min-height: 78px;
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+    .brand {
+      color: var(--text);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -.055em;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .brand-mark { color: var(--accent); font-family: ui-sans-serif, system-ui, sans-serif; font-size: .7em; vertical-align: .22em; margin-left: 2px; }
+    .nav-right { display: flex; align-items: center; justify-content: flex-end; gap: clamp(12px, 2.5vw, 30px); }
+    .nav-links { display: flex; gap: clamp(12px, 2.5vw, 28px); align-items: center; }
+    .nav-links a {
+      color: var(--muted);
+      font-size: .86rem;
+      font-weight: 650;
+      letter-spacing: .015em;
+      transition: color .18s ease;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .language-switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px;
+      flex-shrink: 0;
+    }
+    .language-option {
+      border: 0;
+      background: transparent;
+      border-radius: 999px;
+      padding: 5px 10px;
+      color: var(--muted);
+      font-size: .76rem;
+      line-height: 1.3;
+      font-weight: 750;
+      letter-spacing: .035em;
+      cursor: pointer;
+    }
+    .language-option[aria-pressed="true"] { color: #fff; background: #1769c2; box-shadow: 0 2px 6px rgba(23, 105, 194, .25); }
+    @media (prefers-color-scheme: dark) {
+      .language-option[aria-pressed="true"] { color: #0d1420; background: #8fc4ff; }
+    }
+
+    .page-shell { width: min(100% - 40px, 850px); margin-inline: auto; }
+    .intro { padding: clamp(44px, 7vw, 76px) 0 30px; }
+    .eyebrow, .section-kicker {
+      color: var(--accent);
+      font-size: .73rem;
+      font-weight: 800;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin: 0 0 14px;
+    }
+    .intro h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.3rem, 5.5vw, 4.25rem);
+      line-height: 1.08;
+      letter-spacing: -.055em;
+      font-weight: 700;
+      max-width: 760px;
+      margin: 0 0 20px;
+    }
+    .tagline { max-width: 650px; font-size: clamp(1.1rem, 2vw, 1.35rem); color: var(--muted); margin: 0; line-height: 1.65; }
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 24px;
+      margin-bottom: 8px;
+    }
+    .section-heading .section-kicker { margin-bottom: 7px; }
+    .section-heading h2, .about-section h2, .contact-section h2 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.65rem, 3.5vw, 2.2rem);
+      letter-spacing: -.04em;
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0;
+    }
+    .section-aside { max-width: 240px; text-align: right; color: var(--muted); font-size: .88rem; margin: 0 0 3px; }
+    .writing-section { padding: 38px 0 10px; }
+    .posts-list { border-top: 1px solid var(--line); margin-top: 24px; }
+    .post-item { padding: 27px 0 31px; border-bottom: 1px solid var(--line); }
+    .post-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .post-date { color: var(--muted); font-size: .83rem; font-weight: 560; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 2px 9px;
+      font-size: .69rem;
+      font-weight: 780;
+      letter-spacing: .045em;
+      line-height: 1.65;
+    }
+    .tag.en { background: var(--tag-en-bg); color: var(--tag-en-text); }
+    .tag.so { background: var(--tag-so-bg); color: var(--tag-so-text); }
+    .tag.mix { background: var(--tag-mix-bg); color: var(--tag-mix-text); }
+    .post-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; align-items: start; }
+    .post-item--with-image .post-layout { grid-template-columns: minmax(0, 1fr) minmax(130px, 205px); }
+    .post-title {
+      color: var(--text);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.3rem, 2.8vw, 1.65rem);
+      line-height: 1.3;
+      letter-spacing: -.025em;
+      margin: 0 0 9px;
+      font-weight: 700;
+    }
+    .post-summary { margin: 0; color: var(--muted); line-height: 1.75; overflow-wrap: anywhere; }
+    .post-image { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 9px; border: 1px solid var(--line); background: var(--soft); }
+    .post-actions { margin-top: 15px; }
+    .read-more-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: 0;
+      color: var(--accent);
+      font-size: .9rem;
+      font-weight: 760;
+      padding: 0;
+      cursor: pointer;
+    }
+    .read-more-btn:hover { color: var(--accent-hover); text-decoration: underline; text-underline-offset: 4px; }
+    .read-more-btn .arrow { transition: transform .18s ease; }
+    .read-more-btn[aria-expanded="true"] .arrow { transform: rotate(90deg); }
+    .post-full-text { margin-top: 17px; padding-top: 16px; border-top: 1px dashed var(--line); white-space: pre-wrap; overflow-wrap: anywhere; color: var(--text); line-height: 1.85; }
+    .post-full-text[hidden] { display: none; }
+    .empty-state { padding: 34px 0; color: var(--muted); }
+    .empty-state strong { color: var(--text); display: block; margin-bottom: 5px; }
+
+    .about-section { padding: 63px 0 28px; border-bottom: 1px solid var(--line); }
+    .about-copy { max-width: 720px; color: var(--muted); font-size: 1.04rem; margin: 17px 0 0; line-height: 1.9; }
+    .contact-section { padding: 55px 0 65px; display: flex; align-items: center; justify-content: space-between; gap: 30px; }
+    .contact-copy { max-width: 560px; }
+    .contact-section h2 { margin-bottom: 12px; }
+    .contact-text { color: var(--muted); margin: 0; }
+    .contact-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      color: var(--accent);
+      font-weight: 740;
+      font-size: .9rem;
+      white-space: nowrap;
+      transition: background .18s ease, color .18s ease, transform .18s ease;
+    }
+    .contact-btn:hover { background: var(--accent); color: white; transform: translateY(-1px); }
+    @media (prefers-color-scheme: dark) { .contact-btn:hover { color: #0d1420; } }
+    footer { background: var(--paper); border-top: 1px solid var(--line); }
+    .footer-inner { width: min(100% - 40px, 850px); margin-inline: auto; padding: 22px 0 27px; display: flex; justify-content: space-between; gap: 14px; color: var(--muted); font-size: .82rem; }
+    .footer-inner p { margin: 0; }
+    .footer-domain { color: var(--accent); font-weight: 650; }
+
+    @media (max-width: 680px) {
+      .banner { aspect-ratio: 2.25 / 1; min-height: 145px; }
+      .site-nav { width: min(100% - 32px, 1040px); min-height: auto; padding: 19px 0 15px; align-items: flex-start; gap: 15px; }
+      .brand { font-size: 1.65rem; margin-top: 4px; }
+      .nav-right { gap: 12px; flex-wrap: wrap; }
+      .nav-links { gap: 12px; flex-wrap: wrap; }
+      .nav-links a { font-size: .78rem; }
+      .language-option { padding: 5px 8px; }
+      .page-shell { width: min(100% - 34px, 850px); }
+      .section-heading { align-items: flex-start; flex-direction: column; gap: 6px; }
+      .section-aside { max-width: none; text-align: left; }
+      .post-item--with-image .post-layout { grid-template-columns: minmax(0, 1fr) 115px; gap: 14px; }
+      .post-image { aspect-ratio: 3 / 4; }
+      .contact-section { align-items: flex-start; flex-direction: column; gap: 20px; padding: 44px 0 50px; }
+      .footer-inner { width: min(100% - 34px, 850px); flex-direction: column; gap: 4px; }
+    }
+    @media (max-width: 430px) {
+      .site-nav { flex-direction: column; align-items: stretch; gap: 14px; }
+      .nav-right { justify-content: space-between; }
+      .post-item--with-image .post-layout { grid-template-columns: minmax(0, 1fr); }
+      .post-image { grid-row: 1; width: min(100%, 300px); aspect-ratio: 16 / 9; margin-bottom: 2px; }
+      .post-copy { grid-row: 2; }
+      .intro { padding-top: 42px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="banner" aria-label="Somali flag banner with a portrait">
+    <img src="assets/halyay-header.png" alt="Somali flag and portrait banner" fetchpriority="high">
+  </div>
+
+  <div class="site-nav-wrap">
+    <nav class="site-nav" aria-label="Main navigation">
+      <a class="brand" href="#home" aria-label="Halyay home">Halyay<span class="brand-mark" aria-hidden="true">✦</span></a>
+      <div class="nav-right">
+        <div class="nav-links">
+          <a href="#home" data-i18n="navHome">Home</a>
+          <a href="#writing" data-i18n="navWriting">Writing</a>
+          <a href="#about" data-i18n="navAbout">About</a>
+          <a href="#contact" data-i18n="navContact">Contact</a>
+        </div>
+        <div class="language-switch" role="group" aria-label="Choose language">
+          <button class="language-option" type="button" data-language="en" aria-pressed="true">EN</button>
+          <button class="language-option" type="button" data-language="so" aria-pressed="false">SO</button>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <main class="page-shell">
+    <section class="intro" id="home">
+      <p class="eyebrow" data-i18n="eyebrow">A PERSONAL SPACE · ENGLISH &amp; SOMALI</p>
+      <h1 data-i18n="tagline">Thinker, Builder, and Observer.</h1>
+    </section>
+
+    <section class="writing-section" id="writing">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker" data-i18n="writingKicker">THE JOURNAL</p>
+          <h2 id="siteHeading" data-i18n="heading">Recent Posts</h2>
+        </div>
+        <p class="section-aside" data-i18n="postsAside">Notes, stories, and things worth sharing.</p>
+      </div>
+      <div id="posts-container" class="posts-list" aria-live="polite" aria-busy="true">
+        <p class="empty-state" id="loadingMsg" data-i18n="loading">Loading posts…</p>
+      </div>
+    </section>
+
+    <section class="about-section" id="about">
+      <p class="section-kicker" data-i18n="aboutKicker">A LITTLE CONTEXT</p>
+      <h2 data-i18n="aboutHeading">About this space</h2>
+      <p id="siteBio" class="about-copy" data-i18n="bio">Welcome to my personal space. I use this portfolio to document my journey, share my ideas, and write about the things I am learning. I write in English, Somali, and sometimes a mix of both, depending on what feels right for the story.</p>
+    </section>
+
+    <section class="contact-section" id="contact">
+      <div class="contact-copy">
+        <p class="section-kicker" data-i18n="contactKicker">SAY HELLO</p>
+        <h2 id="contactHeading" data-i18n="contactHeading">Get in touch</h2>
+        <p id="contactText" class="contact-text" data-i18n="contactText">Want to chat, collaborate, or share an idea? The fastest way to reach me is on X.</p>
+      </div>
+      <a id="contactLink" class="contact-btn" href="https://x.com/halyay" target="_blank" rel="noopener noreferrer"><span data-i18n="contactBtn">Message me on X</span><span aria-hidden="true">↗</span></a>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <p id="siteFooter">© Halyay. Built with curiosity.</p>
+      <p class="footer-domain">www.48du1k4d1r.com</p>
+    </div>
+  </footer>
+
+  <script>
+    // The sheet and existing column names are preserved from the current Halyay site.
+    // Set the spreadsheet to allow public viewing if you want this public site to fetch its CSV.
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/1mHQOonss0hiq2WSYc6qQgWhFMp29L3lJp5I5toxyfic/export?format=csv";
+    const LANGUAGE_STORAGE_KEY = "halyay-language";
+
+    const translations = {
+      en: {
+        navHome: "Home", navWriting: "Writing", navAbout: "About", navContact: "Contact",
+        eyebrow: "A PERSONAL SPACE · ENGLISH & SOMALI",
+        tagline: "Thinker, Builder, and Observer.",
+        writingKicker: "THE JOURNAL", heading: "Recent Posts",
+        postsAside: "Notes, stories, and things worth sharing.",
+        aboutKicker: "A LITTLE CONTEXT", aboutHeading: "About this space",
+        bio: "Welcome to my personal space. I use this portfolio to document my journey, share my ideas, and write about the things I am learning. I write in English, Somali, and sometimes a mix of both, depending on what feels right for the story.",
+        contactKicker: "SAY HELLO", contactHeading: "Get in touch",
+        contactText: "Want to chat, collaborate, or share an idea? The fastest way to reach me is on X.",
+        contactBtn: "Message me on X", readMore: "Read the full post", showLess: "Show less",
+        english: "English", somali: "Soomaali", mixed: "Mixed",
+        loading: "Loading posts…", noPostsTitle: "Nothing here just yet.",
+        noPosts: "Add a post to the Google Sheet to see it appear here.",
+        loadErrorTitle: "Posts couldn’t be loaded.",
+        loadError: "Check that the Google Sheet is shared for public viewing and that its first row contains the expected column names: Date, Tag, ImageURL, Title, Summary, FullText.",
+        invalidSheet: "The sheet did not return a CSV with a Title column. Check the sharing settings and the spreadsheet tab.",
+        footer: "Built with curiosity."
+      },
+      so: {
+        navHome: "Hoyga", navWriting: "Qoraallo", navAbout: "Ku Saabsan", navContact: "Xiriir",
+        eyebrow: "BOG GAAR AH · SOOMAALI IYO INGIRIISI",
+        tagline: "Fakare, Abuure, iyo Daawade.",
+        writingKicker: "QORAALLO", heading: "Qoraalladii Ugu Dambeeyay",
+        postsAside: "Fikrado, sheekooyin, iyo waxyaabo mudan in la wadaago.",
+        aboutKicker: "FAAHFAAHIN KOOBAN", aboutHeading: "Ku saabsan boggan",
+        bio: "Ku soo dhawoow boggayga gaarka ah. Waxaan boggan u isticmaalaa inaan ku diiwaangeliyo safarkayga, ku wadaago fikradahayga, oo aan ku qoro waxyaabaha aan baranayo. Waxaan wax ku qoraa Ingiriisi, Soomaali, mararka qaarkoodna labada luqadood ayaan isku daraa.",
+        contactKicker: "NALA SOO HADAL", contactHeading: "Nala soo xiriir",
+        contactText: "Ma doonaysaa sheeko, wada-shaqayn, ama inaad fikrad wadaagto? Sida ugu dhaqsaha badan ee aad igula soo xiriiri karto waa X.",
+        contactBtn: "Farriin iigu soo dir X", readMore: "Akhri qoraalka oo dhan", showLess: "Soo koob",
+        english: "Ingiriisi", somali: "Soomaali", mixed: "Isku-dhaf",
+        loading: "Qoraallada waa la soo gelinayaa…", noPostsTitle: "Weli wax qoraal ah ma jiro.",
+        noPosts: "Ku dar qoraal Google Sheet-ka si uu halkan uga muuqdo.",
+        loadErrorTitle: "Qoraallada lama soo gelin karin.",
+        loadError: "Hubi in Google Sheet-ku u furan yahay dadweynaha iyo in safka koowaad uu leeyahay tiirarkan: Date, Tag, ImageURL, Title, Summary, FullText.",
+        invalidSheet: "Sheet-ku ma soo celin CSV leh tiirka Title. Hubi oggolaanshaha iyo tab-ka spreadsheet-ka.",
+        footer: "Waxaa lagu dhisay xiise iyo waxbarasho."
+      }
+    };
+
+    let currentLang = "en";
+    let postsData = [];
+    let loadState = "loading";
+
+    const postsContainer = document.getElementById("posts-container");
+    const normalizeKey = (value) => String(value || "").replace(/^\uFEFF/, "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+
+    function parseCSV(text) {
+      // CSV parser supports commas, double quotes, CRLF and newlines inside quoted cells.
+      const rows = [];
+      let row = [];
+      let cell = "";
+      let inQuotes = false;
+      const input = String(text || "").replace(/^\uFEFF/, "");
+
+      for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+        const next = input[i + 1];
+        if (char === '"' && inQuotes && next === '"') {
+          cell += '"';
+          i++;
+        } else if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          row.push(cell.trim());
+          cell = "";
+        } else if ((char === "\n" || char === "\r") && !inQuotes) {
+          if (char === "\r" && next === "\n") i++;
+          row.push(cell.trim());
+          if (row.some((value) => value !== "")) rows.push(row);
+          row = [];
+          cell = "";
+        } else {
+          cell += char;
+        }
+      }
+      if (cell.length || row.length) {
+        row.push(cell.trim());
+        if (row.some((value) => value !== "")) rows.push(row);
+      }
+      return rows;
+    }
+
+    function getField(post, candidates) {
+      for (const name of candidates) {
+        const value = post[normalizeKey(name)];
+        if (value !== undefined && String(value).trim() !== "") return String(value).trim();
+      }
+      return "";
+    }
+
+    function getLocalizedField(post, base) {
+      const names = currentLang === "so"
+        ? [`${base}SO`, `${base}Somali`, `${base}_SO`, base]
+        : [`${base}EN`, `${base}English`, `${base}_EN`, base];
+      return getField(post, names);
+    }
+
+    function translatePage(lang) {
+      currentLang = lang === "so" ? "so" : "en";
+      document.documentElement.lang = currentLang === "so" ? "so" : "en";
+      try { localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLang); } catch (_) { /* Storage may be blocked. */ }
+
+      document.querySelectorAll("[data-i18n]").forEach((element) => {
+        const key = element.dataset.i18n;
+        if (translations[currentLang][key] !== undefined) element.textContent = translations[currentLang][key];
+      });
+      document.querySelectorAll(".language-option").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.language === currentLang));
+      });
+      document.getElementById("siteFooter").textContent = `© ${new Date().getFullYear()} Halyay. ${translations[currentLang].footer}`;
+
+      if (loadState === "loaded") renderPosts();
+      else if (loadState === "empty") renderEmptyState(false);
+      else if (loadState === "error") renderEmptyState(true);
+      else {
+        const loading = document.getElementById("loadingMsg");
+        if (loading) loading.textContent = translations[currentLang].loading;
+      }
+    }
+
+    function makeElement(tagName, className, text) {
+      const element = document.createElement(tagName);
+      if (className) element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    }
+
+    function renderEmptyState(isError) {
+      postsContainer.innerHTML = "";
+      postsContainer.setAttribute("aria-busy", "false");
+      const state = makeElement("div", "empty-state");
+      const title = makeElement("strong", "", isError ? translations[currentLang].loadErrorTitle : translations[currentLang].noPostsTitle);
+      const detail = makeElement("p", "", isError ? translations[currentLang].loadError : translations[currentLang].noPosts);
+      detail.style.margin = "0";
+      state.append(title, detail);
+      postsContainer.appendChild(state);
+    }
+
+    function renderPosts() {
+      postsContainer.innerHTML = "";
+      postsContainer.setAttribute("aria-busy", "false");
+      if (!postsData.length) {
+        loadState = "empty";
+        renderEmptyState(false);
+        return;
+      }
+
+      postsData.forEach((post) => {
+        const titleText = getLocalizedField(post, "Title") || getField(post, ["Title"]);
+        const summaryText = getLocalizedField(post, "Summary") || getField(post, ["Summary", "Description"]);
+        const fullText = getLocalizedField(post, "FullText") || getField(post, ["FullText", "Body", "Content"]);
+        const dateText = getField(post, ["Date", "PublishedAt"]);
+        const tagValue = getField(post, ["Tag", "Language"]).toLowerCase();
+        const imageUrl = getField(post, ["ImageURL", "Image", "ImageUrl"]);
+        const tagType = tagValue.includes("so") ? "so" : tagValue.includes("en") ? "en" : "mix";
+        const tagLabel = tagType === "so" ? translations[currentLang].somali : tagType === "en" ? translations[currentLang].english : translations[currentLang].mixed;
+
+        const article = makeElement("article", `post-item${imageUrl && /^https?:\/\//i.test(imageUrl) ? " post-item--with-image" : ""}`);
+        const meta = makeElement("div", "post-meta");
+        if (dateText) {
+          const date = makeElement("time", "post-date", dateText);
+          const parsedDate = Date.parse(dateText);
+          if (!Number.isNaN(parsedDate)) date.dateTime = new Date(parsedDate).toISOString();
+          meta.appendChild(date);
+        }
+        meta.appendChild(makeElement("span", `tag ${tagType}`, tagLabel));
+        article.appendChild(meta);
+
+        const layout = makeElement("div", "post-layout");
+        const copy = makeElement("div", "post-copy");
+        copy.appendChild(makeElement("h3", "post-title", titleText || "Untitled"));
+        if (summaryText) copy.appendChild(makeElement("p", "post-summary", summaryText));
+
+        if (fullText) {
+          const actions = makeElement("div", "post-actions");
+          const button = makeElement("button", "read-more-btn");
+          button.type = "button";
+          button.setAttribute("aria-expanded", "false");
+          const buttonText = makeElement("span", "", translations[currentLang].readMore);
+          const arrow = makeElement("span", "arrow", "→");
+          arrow.setAttribute("aria-hidden", "true");
+          button.append(buttonText, arrow);
+          const full = makeElement("div", "post-full-text", fullText);
+          full.hidden = true;
+          button.addEventListener("click", () => {
+            const opening = full.hidden;
+            full.hidden = !opening;
+            button.setAttribute("aria-expanded", String(opening));
+            buttonText.textContent = opening ? translations[currentLang].showLess : translations[currentLang].readMore;
+          });
+          actions.append(button, full);
+          copy.appendChild(actions);
+        }
+        layout.appendChild(copy);
+
+        if (imageUrl && /^https?:\/\//i.test(imageUrl)) {
+          const image = makeElement("img", "post-image");
+          image.src = imageUrl;
+          image.alt = titleText ? `Image for ${titleText}` : "Post image";
+          image.loading = "lazy";
+          image.decoding = "async";
+          image.referrerPolicy = "no-referrer";
+          layout.appendChild(image);
+        }
+        article.appendChild(layout);
+        postsContainer.appendChild(article);
+      });
+    }
+
+    async function fetchPosts() {
+      postsContainer.setAttribute("aria-busy", "true");
+      try {
+        const separator = SHEET_URL.includes("?") ? "&" : "?";
+        const response = await fetch(`${SHEET_URL}${separator}cache=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) throw new Error(`Google Sheets responded with ${response.status}`);
+        const csvText = await response.text();
+        if (/^\s*(?:<!doctype\s+html|<html|<head|<body|<form)\b/i.test(csvText)) {
+          throw new Error("The sheet returned HTML instead of CSV. Check its sharing settings.");
+        }
+        const rows = parseCSV(csvText);
+        if (rows.length < 2) {
+          postsData = [];
+          loadState = "empty";
+          renderEmptyState(false);
+          return;
+        }
+        const headers = rows[0].map(normalizeKey);
+        if (!headers.includes("title") && !headers.includes("titleen") && !headers.includes("titleso") && !headers.includes("titlesomali")) {
+          throw new Error("Missing Title column");
+        }
+
+        postsData = rows.slice(1).map((cells) => {
+          const item = {};
+          headers.forEach((header, index) => { item[header] = String(cells[index] ?? "").trim(); });
+          return item;
+        }).filter((post) => getField(post, ["Title", "TitleEN", "TitleSO", "TitleSomali"]) !== "");
+
+        // The existing sheet is maintained in chronological row order; newest rows appear first.
+        postsData.reverse();
+        loadState = postsData.length ? "loaded" : "empty";
+        renderPosts();
+      } catch (error) {
+        console.error("Halyay sheet load error:", error);
+        loadState = "error";
+        renderEmptyState(true);
+      }
+    }
+
+    document.querySelectorAll(".language-option").forEach((button) => {
+      button.addEventListener("click", () => translatePage(button.dataset.language));
+    });
+
+    let initialLanguage = "en";
+    try {
+      const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      if (savedLanguage === "so" || savedLanguage === "en") initialLanguage = savedLanguage;
+    } catch (_) { /* Default to English if storage is unavailable. */ }
+    translatePage(initialLanguage);
+    fetchPosts();
+  </script>
+</body>
+</html>
