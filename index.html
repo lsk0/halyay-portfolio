@@ -65,7 +65,7 @@
     img { display: block; max-width: 100%; }
     a { color: var(--accent); text-decoration: none; text-underline-offset: .2em; }
     a:hover { color: var(--accent-hover); }
-    button { font: inherit; }
+    button { font: inherit; cursor: pointer; }
     button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
 
     .banner {
@@ -95,11 +95,10 @@
       justify-content: space-between;
       gap: 28px;
     }
-    .brand { color: var(--text); background: transparent; font-family: Georgia, "Times New Roman", serif; font-size: 1.72rem; font-weight: 700; letter-spacing: .075em; line-height: 1; white-space: nowrap; text-transform: uppercase; }
+    .brand { color: var(--text); background: transparent; font-family: Georgia, "Times New Roman", serif; font-size: 1.72rem; font-weight: 700; letter-spacing: .075em; line-height: 1; white-space: nowrap; text-transform: uppercase; text-decoration: none; }
     .brand:hover { color: var(--accent); }
     .brand-logo { display: block; width: clamp(170px, 22vw, 235px); height: auto; color: var(--text); overflow: visible; }
     .brand-emblem { color: var(--accent); }
-    .brand-mark { display: none; }
     .category-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 0; }
     .category-tab { border: 1px solid var(--line); border-radius: 999px; padding: 7px 15px; color: var(--muted); background: transparent; font-size: .83rem; font-weight: 750; cursor: pointer; }
     .category-tab[aria-pressed="true"] { color: var(--paper); background: var(--text); border-color: var(--text); }
@@ -160,7 +159,6 @@
       max-width: 760px;
       margin: 0 0 20px;
     }
-    .tagline { max-width: 650px; font-size: clamp(1.1rem, 2vw, 1.35rem); color: var(--muted); margin: 0; line-height: 1.65; }
     .section-heading {
       display: flex;
       justify-content: space-between;
@@ -248,6 +246,7 @@
       font-weight: 740;
       font-size: .9rem;
       white-space: nowrap;
+      text-decoration: none;
       transition: background .18s ease, color .18s ease, transform .18s ease;
     }
     .contact-btn:hover { background: var(--accent); color: white; transform: translateY(-1px); }
@@ -281,14 +280,12 @@
       .post-copy { grid-row: 2; }
       .intro { padding-top: 42px; }
     }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
-    }
   </style>
 </head>
 <body>
   <div class="banner" aria-label="Somali flag banner with a portrait">
-    <img src="assets/halyay-header.png" alt="Somali flag and portrait banner" fetchpriority="high">
+    <!-- Make sure you have a file named halyay-header.png in an 'assets' folder, or change this src -->
+    <img src="assets/halyay-header.png" alt="Halyay banner" fetchpriority="high">
   </div>
 
   <div class="site-nav-wrap">
@@ -368,8 +365,6 @@
   </footer>
 
   <script>
-    // The sheet and existing column names are preserved from the current Halyay site.
-    // Set the spreadsheet to allow public viewing if you want this public site to fetch its CSV.
     const LANGUAGE_STORAGE_KEY = "halyay-language";
 
     const translations = {
@@ -422,7 +417,6 @@
     const normalizeKey = (value) => String(value || "").replace(/^\uFEFF/, "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
 
     function parseCSV(text) {
-      // CSV parser supports commas, double quotes, CRLF and newlines inside quoted cells.
       const rows = [];
       let row = [];
       let cell = "";
@@ -469,7 +463,7 @@
       const url = String(value || "").trim();
       if (!url) return "";
       const match = url.match(/drive\.google\.com\/file\/d\/([\w-]+)/i) || url.match(/[?&]id=([\w-]+)/i);
-      if (/drive\.google\.com/i.test(url) && match) return \`https://drive.google.com/uc?export=view&id=\${match[1]}\`;
+      if (/drive\.google\.com/i.test(url) && match) return `https://drive.google.com/uc?export=view&id=${match[1]}`;
       return url;
     }
 
@@ -482,7 +476,6 @@
 
     function translatePage(lang) {
       currentLang = lang === "so" ? "so" : "en";
-      // Switching language clears category filters so the matching-language article is always visible.
       currentCategory = "all";
       document.querySelectorAll(".category-tab").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.category === "all")));
       document.documentElement.lang = currentLang === "so" ? "so" : "en";
@@ -545,6 +538,7 @@
         if (currentLang === "en" && so && !en && !mixed) return false;
         return true;
       });
+      
       if (!visiblePosts.length) {
         postsContainer.setAttribute("aria-busy", "false");
         const empty = makeElement("div", "empty-state");
@@ -559,6 +553,7 @@
         postsContainer.appendChild(empty);
         return;
       }
+
       visiblePosts.forEach((post) => {
         const titleText = getLocalizedField(post, "Title") || getField(post, ["Title"]);
         const summaryText = getLocalizedField(post, "Summary") || getField(post, ["Summary", "Description"]);
@@ -665,8 +660,6 @@
             return;
           }
 
-          // This sheet's schema is fixed by position, so use A:G even if Google
-          // returns blank or generated column labels.
           const keys = ["title", "data", "tag", "summary", "fulltext", "imageurl", "category"];
           const rows = (response.table?.rows || []).map((row) => {
             const post = {};
@@ -686,7 +679,6 @@
         };
 
         const url = new URL(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq`);
-        // JSONP avoids browser CORS restrictions that can leave a direct CSV fetch stuck.
         url.searchParams.set("tqx", `out:json;responseHandler:${callbackName}`);
         url.searchParams.set("headers", "1");
         script.onerror = () => finish(new Error("Could not reach Google Sheets. Check the sheet sharing settings and try again."));
@@ -714,7 +706,6 @@
         renderPosts();
       } catch (error) {
         console.error("Halyay sheet load error:", error);
-        // Keep any articles already on screen during a background refresh.
         if (!postsData.length && !silent) {
           loadState = "error";
           renderEmptyState(true);
@@ -724,10 +715,10 @@
       }
     }
 
-    // New rows added to Google Sheets publish on the site automatically.
     window.setInterval(() => {
       if (!document.hidden) fetchPosts(true);
     }, 60000);
+    
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) fetchPosts(true);
     });
@@ -735,6 +726,7 @@
     document.querySelectorAll(".language-option").forEach((button) => {
       button.addEventListener("click", () => translatePage(button.dataset.language));
     });
+    
     document.querySelectorAll(".category-tab").forEach((button) => {
       button.addEventListener("click", () => {
         currentCategory = ["all", "blog", "opinion"].includes(button.dataset.category) ? button.dataset.category : "all";
@@ -742,6 +734,7 @@
         renderPosts();
       });
     });
+    
     document.querySelectorAll("[data-category-link]").forEach((link) => {
       link.addEventListener("click", () => {
         currentCategory = link.dataset.categoryLink === "opinion" ? "opinion" : "blog";
@@ -755,6 +748,7 @@
       const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
       if (savedLanguage === "so" || savedLanguage === "en") initialLanguage = savedLanguage;
     } catch (_) { /* Default to English if storage is unavailable. */ }
+    
     translatePage(initialLanguage);
     fetchPosts();
   </script>
