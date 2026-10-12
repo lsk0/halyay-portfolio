@@ -335,7 +335,8 @@
         <p class="section-aside" data-i18n="postsAside">Writing from my perspective, in English and Somali.</p>
       </div>
       <div class="category-tabs" role="group" aria-label="Filter posts by category">
-        <button class="category-tab" type="button" data-category="blog" aria-pressed="true" data-i18n="navBlog">Blog</button>
+        <button class="category-tab" type="button" data-category="all" aria-pressed="true" data-i18n="categoryAll">All</button>
+        <button class="category-tab" type="button" data-category="blog" aria-pressed="false" data-i18n="navBlog">Blog</button>
         <button class="category-tab" type="button" data-category="opinion" aria-pressed="false" data-i18n="navOpinion">Opinion</button>
       </div>
       <div id="posts-container" class="posts-list" aria-live="polite" aria-busy="true">
@@ -373,7 +374,7 @@
 
     const translations = {
       en: {
-        navHome: "Home", navBlog: "Blog", navOpinion: "Opinion", navAbout: "About", navContact: "Contact",
+        navHome: "Home", navBlog: "Blog", navOpinion: "Opinion", navAbout: "About", navContact: "Contact", categoryAll: "All",
         eyebrow: "A PERSONAL SPACE · ENGLISH & SOMALI",
         tagline: "Ideas, stories, and perspectives.",
         writingKicker: "THE JOURNAL", heading: "From the journal",
@@ -387,12 +388,12 @@
         loading: "Loading posts…", noPostsTitle: "Nothing here just yet.",
         noPosts: "Add a post to the Google Sheet to see it appear here.",
         loadErrorTitle: "Posts couldn’t be loaded.",
-        loadError: "Check that the Google Sheet is shared for public viewing and that its first row contains the expected column names: Date, Tag, ImageURL, Title, Summary, FullText.",
+        loadError: "For the public website, set Google Sheets sharing to “Anyone with the link — Viewer”. The header row must include Title, Tag, Summary, and FullText; Date (or Data), ImageURL, and Category are also supported.",
         invalidSheet: "The sheet did not return a CSV with a Title column. Check the sharing settings and the spreadsheet tab.",
         footer: "Built with curiosity."
       },
       so: {
-        navHome: "Hoyga", navBlog: "Blog", navOpinion: "Aragti", navAbout: "Ku Saabsan", navContact: "Xiriir",
+        navHome: "Hoyga", navBlog: "Blog", navOpinion: "Aragti", navAbout: "Ku Saabsan", navContact: "Xiriir", categoryAll: "Dhammaan",
         eyebrow: "BOG GAAR AH · SOOMAALI IYO INGIRIISI",
         tagline: "Fikrado, sheekooyin, iyo aragtiyo.",
         writingKicker: "JOURNAL-KA", heading: "Qoraallada",
@@ -406,14 +407,14 @@
         loading: "Qoraallada waa la soo gelinayaa…", noPostsTitle: "Weli wax qoraal ah ma jiro.",
         noPosts: "Ku dar qoraal Google Sheet-ka si uu halkan uga muuqdo.",
         loadErrorTitle: "Qoraallada lama soo gelin karin.",
-        loadError: "Hubi in Google Sheet-ku u furan yahay dadweynaha iyo in safka koowaad uu leeyahay tiirarkan: Date, Tag, ImageURL, Title, Summary, FullText.",
+        loadError: "Si bogga dadweynuhu u akhriyo, Google Sheet-ka ka dhig “Anyone with the link — Viewer”. Safka cinwaannadu waa inuu leeyahay Title, Tag, Summary iyo FullText; Date (ama Data), ImageURL iyo Category-na waa la taageeraa.",
         invalidSheet: "Sheet-ku ma soo celin CSV leh tiirka Title. Hubi oggolaanshaha iyo tab-ka spreadsheet-ka.",
         footer: "Waxaa lagu dhisay xiise iyo waxbarasho."
       }
     };
 
     let currentLang = "en";
-    let currentCategory = "blog";
+    let currentCategory = "all";
     let postsData = [];
     let loadState = "loading";
 
@@ -481,6 +482,9 @@
 
     function translatePage(lang) {
       currentLang = lang === "so" ? "so" : "en";
+      // Switching language clears category filters so the matching-language article is always visible.
+      currentCategory = "all";
+      document.querySelectorAll(".category-tab").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.category === "all")));
       document.documentElement.lang = currentLang === "so" ? "so" : "en";
       try { localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLang); } catch (_) { /* Storage may be blocked. */ }
 
@@ -532,7 +536,7 @@
       const visiblePosts = postsData.filter((post) => {
         const category = (getField(post, ["Category", "Type", "Section"]) || "blog").toLowerCase();
         const opinion = /opinion|aragt|ra'yi|rayi/.test(category);
-        if ((currentCategory === "opinion") !== opinion) return false;
+        if (currentCategory !== "all" && ((currentCategory === "opinion") !== opinion)) return false;
         const language = getField(post, ["Tag", "Language"]).toLowerCase();
         const so = /somali|soomaali|^so$/.test(language);
         const en = /english|ingiriisi|^en$/.test(language);
@@ -622,60 +626,79 @@
       });
     }
 
+    function fetchSheetRowsWithJsonp(sheetId) {
+      return new Promise((resolve, reject) => {
+        const callbackName = `__halyaySheetResponse_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const script = document.createElement("script");
+        let settled = false;
+        const timeoutId = window.setTimeout(() => {
+          finish(new Error("Google Sheets did not respond in time. Check that the spreadsheet is shared for public viewing."));
+        }, 12000);
+
+        function cleanup() {
+          window.clearTimeout(timeoutId);
+          script.remove();
+          try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
+        }
+
+        function finish(error, rows) {
+          if (settled) return;
+          settled = true;
+          cleanup();
+          if (error) reject(error);
+          else resolve(rows);
+        }
+
+        window[callbackName] = (response) => {
+          if (!response || response.status !== "ok") {
+            const details = (response?.errors || [])
+              .map((item) => item.detailed_message || item.message || "")
+              .filter(Boolean)
+              .join("; ");
+            finish(new Error(details || "Google Sheets refused the request. Share the sheet as anyone-with-the-link Viewer."));
+            return;
+          }
+
+          const columns = response.table?.cols || [];
+          const headers = columns.map((column, index) => normalizeKey(column.label || column.id || `column${index + 1}`));
+          if (!headers.some((header) => ["title", "titleen", "titleso", "titlesomali"].includes(header))) {
+            finish(new Error("The first worksheet does not contain a Title column. Check the sheet tab and header row."));
+            return;
+          }
+
+          const rows = (response.table?.rows || []).map((row) => {
+            const post = {};
+            columns.forEach((column, index) => {
+              const key = headers[index];
+              const cell = row?.c?.[index];
+              let value = cell && cell.f !== undefined && cell.f !== null ? cell.f : cell?.v;
+              if (value instanceof Date && !Number.isNaN(value.getTime())) value = value.toLocaleDateString();
+              post[key] = value == null ? "" : String(value).trim();
+            });
+            return post;
+          }).filter((post) => getField(post, ["Title", "TitleEN", "TitleSO", "TitleSomali"]) !== "");
+
+          finish(null, rows);
+        };
+
+        const url = new URL(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq`);
+        // JSONP avoids browser CORS restrictions that can leave a direct CSV fetch stuck.
+        url.searchParams.set("tqx", `out:json;responseHandler:${callbackName}`);
+        url.searchParams.set("headers", "1");
+        script.onerror = () => finish(new Error("Could not reach Google Sheets. Check the sheet sharing settings and try again."));
+        script.src = url.toString();
+        document.head.appendChild(script);
+      });
+    }
+
     async function fetchPosts() {
       postsContainer.setAttribute("aria-busy", "true");
       loadState = "loading";
       const sheetId = "1mHQOonss0hiq2WSYc6qQgWhFMp29L3lJp5I5toxyfic";
-      // Try the published CSV URL supplied for Halyay first, then the same spreadsheet's direct CSV endpoints.
-      const csvUrls = [
-        "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9_kMH-lEz31pJZc8JHLu8bDdnpM16AMy5jhRKI_rc47J629UM7qcGPxJ1rMMH3ICmEVyoLoK2lOcw/pub?output=csv",
-        `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`,
-        `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`
-      ];
-      let lastError = null;
+
       try {
-        let rows = [];
-        for (const url of csvUrls) {
-          try {
-            const separator = url.includes("?") ? "&" : "?";
-            const response = await fetch(`${url}${separator}cache=${Date.now()}`, { cache: "no-store", signal: AbortSignal.timeout(12000) });
-            if (!response.ok) throw new Error(`Google Sheets responded with ${response.status}`);
-            const csvText = await response.text();
-            if (/^\s*(?:<!doctype\s+html|<html|<head|<body|<form)\b/i.test(csvText)) {
-              throw new Error("Google returned a web page instead of CSV data.");
-            }
-            const parsed = parseCSV(csvText);
-            const keys = (parsed[0] || []).map(normalizeKey);
-            if (parsed.length < 2 || !keys.some((key) => ["title", "titleen", "titleso", "titlesomali"].includes(key))) {
-              throw new Error("CSV headers are missing or the wrong sheet tab was returned.");
-            }
-            rows = parsed;
-            break;
-          } catch (error) {
-            lastError = error;
-          }
-        }
-        if (!rows.length) {
-          throw new Error(`Could not read the sheet. ${lastError?.message || "Check that it is published as CSV and publicly viewable."}`);
-        }
-        if (rows.length < 2) {
-          postsData = [];
-          loadState = "empty";
-          renderEmptyState(false);
-          return;
-        }
-        const headers = rows[0].map(normalizeKey);
-        if (!headers.includes("title") && !headers.includes("titleen") && !headers.includes("titleso") && !headers.includes("titlesomali")) {
-          throw new Error("Missing Title column");
-        }
-
-        postsData = rows.slice(1).map((cells) => {
-          const item = {};
-          headers.forEach((header, index) => { item[header] = String(cells[index] ?? "").trim(); });
-          return item;
-        }).filter((post) => getField(post, ["Title", "TitleEN", "TitleSO", "TitleSomali"]) !== "");
-
-        // The existing sheet is maintained in chronological row order; newest rows appear first.
+        postsData = await fetchSheetRowsWithJsonp(sheetId);
+        // Keep the existing row convention: newest article rows appear first.
         postsData.reverse();
         loadState = postsData.length ? "loaded" : "empty";
         renderPosts();
@@ -691,7 +714,7 @@
     });
     document.querySelectorAll(".category-tab").forEach((button) => {
       button.addEventListener("click", () => {
-        currentCategory = button.dataset.category === "opinion" ? "opinion" : "blog";
+        currentCategory = ["all", "blog", "opinion"].includes(button.dataset.category) ? button.dataset.category : "all";
         document.querySelectorAll(".category-tab").forEach((tab) => tab.setAttribute("aria-pressed", String(tab.dataset.category === currentCategory)));
         renderPosts();
       });
