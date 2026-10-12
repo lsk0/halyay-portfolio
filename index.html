@@ -626,8 +626,9 @@
       postsContainer.setAttribute("aria-busy", "true");
       loadState = "loading";
       const sheetId = "1mHQOonss0hiq2WSYc6qQgWhFMp29L3lJp5I5toxyfic";
-      // Use the user's own spreadsheet. The previous published URL belonged to a different sheet.
+      // Try the published CSV URL supplied for Halyay first, then the same spreadsheet's direct CSV endpoints.
       const csvUrls = [
+        "https://docs.google.com/spreadsheets/d/e/2PACX-1vS9_kMH-lEz31pJZc8JHLu8bDdnpM16AMy5jhRKI_rc47J629UM7qcGPxJ1rMMH3ICmEVyoLoK2lOcw/pub?output=csv",
         `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`,
         `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`
       ];
